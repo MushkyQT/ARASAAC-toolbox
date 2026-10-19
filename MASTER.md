@@ -180,8 +180,10 @@ than a real loading state, any animated `width`/`height`/`top`/`left`.
   auto pass (↑/↓ still work).
 - **Disclosure** (export panel): 1px `rule` box, `radius-control`; the summary line states the
   current values (« 8 cm · Open Sans · bordure 2 mm ») so nothing hides what will be printed.
-- **Undo toast** (`Toast`): `ink` fill, `sheet` text, `shadow-dialog`, bottom centre, 10s, always
-  with "Annuler" after a removal; preferred over a confirmation dialog.
+- **Undo toast** (`Toast`): a paper slip, not a block: `sheet` fill, 1px `rule` border,
+  `radius-sheet`, `shadow-lift`, 14px `ink` text, sized to its message (max 28rem), top centre (16px from the edge, drops in 8px),
+  no tack. "Annuler" is a quiet `ink-blue` bold action (`ink-blue-wash` on hover), close icon in
+  `ink-soft`. 10s, always with "Annuler" after a removal; preferred over a confirmation dialog.
 - **Icons** (`icons.tsx`): drawn on a 20px grid, 2px stroke, round caps; no typed glyphs (×, ←, +).
 - **Picto picker** (dialog): `sheet`, `radius-sheet`, `shadow-dialog`; backdrop `ink` at 45%,
   no blur.

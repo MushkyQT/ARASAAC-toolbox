@@ -34,17 +34,17 @@ export function Toast({
   }, [message]);
 
   return (
-    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       {message && (
         <div
           key={message.id}
-          className="toast pointer-events-auto flex w-full max-w-lg items-center gap-3 rounded-control bg-ink py-2 pl-4 pr-2 text-sm text-sheet shadow-dialog"
+          className="toast pointer-events-auto flex max-w-md items-center gap-1 rounded-sheet border border-rule bg-sheet py-1 pl-3.5 pr-1 text-sm text-ink shadow-lift"
         >
-          <p className="min-w-0 flex-1 py-1">{message.text}</p>
+          <p className="min-w-0 flex-1 py-1 pr-2">{message.text}</p>
           {message.undo && (
             <button
               onClick={() => onUndo(message.undo!)}
-              className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-control px-3 font-bold text-sheet transition-colors duration-(--duration-swap) ease-out hover:bg-sheet/15"
+              className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-control px-2.5 font-bold text-ink-blue transition-colors duration-(--duration-swap) ease-out hover:bg-ink-blue-wash hover:text-ink-blue-press"
             >
               <IconUndo size={16} />
               Annuler
@@ -53,9 +53,9 @@ export function Toast({
           <button
             onClick={onDismiss}
             aria-label="Fermer le message"
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-control text-sheet/80 transition-colors duration-(--duration-swap) ease-out hover:bg-sheet/15 hover:text-sheet"
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
           >
-            <IconClose size={16} />
+            <IconClose size={14} />
           </button>
         </div>
       )}
