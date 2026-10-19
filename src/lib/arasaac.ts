@@ -4,7 +4,11 @@ import { normalizeKey } from "@/lib/text";
 export const ARASAAC_API = "https://api.arasaac.org/v1";
 const STATIC = "https://static.arasaac.org/pictograms";
 
-/** Mention légale obligatoire (texte officiel ARASAAC en français), imprimée sur chaque export. */
+/** Mention légale obligatoire (texte officiel ARASAAC en français), affichée en pied de page. */
+export const ARASAAC_CREDIT =
+  "Pictogrammes : Sergio Palao. Origine : ARASAAC (https://arasaac.org). Licence : CC (BY-NC-SA). Propriété : Gouvernement d'Aragon (Espagne).";
+
+/** Version longue de la mention, imprimée sur chaque export. */
 export const ARASAAC_CREDIT_LONG =
   "Les symboles pictographiques utilisés sont la propriété du Gouvernement d'Aragon et ont été créés par Sergio Palao pour ARASAAC (https://arasaac.org), qui les distribuent sous Licence Creative Commons BY-NC-SA.";
 

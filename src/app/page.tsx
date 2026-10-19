@@ -1,3 +1,4 @@
+import { ARASAAC_CREDIT } from "@/lib/arasaac";
 import { Workbench } from "@/components/Workbench";
 
 export default function Home() {
@@ -10,6 +11,10 @@ export default function Home() {
       <main className="flex-1">
         <Workbench />
       </main>
+
+      <footer className="text-xs text-ink-soft">
+        <p>{ARASAAC_CREDIT}</p>
+      </footer>
     </div>
   );
 }
