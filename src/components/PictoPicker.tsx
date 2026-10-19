@@ -58,8 +58,8 @@ function Thumb({
       onFocus={() => keywords === null && pictoKeywords(id).then(setKeywords)}
       aria-pressed={active}
       title={keywords?.join(", ") ?? `Pictogramme ${id}`}
-      className={`group relative flex flex-col items-center justify-start rounded-xl border-[3px] bg-white p-2 transition hover:-translate-y-0.5 hover:shadow-md ${
-        active ? "ring-4 ring-stone-900/80 ring-offset-2" : ""
+      className={`thumb group relative flex cursor-pointer flex-col items-center justify-start rounded-sheet border-4 bg-sheet p-2 ${
+        active ? "ring-4 ring-ink-blue ring-offset-2 ring-offset-sheet" : ""
       }`}
       style={{ borderColor: CATEGORIES[category].color }}
     >
@@ -72,14 +72,14 @@ function Thumb({
           loading="lazy"
         />
       </span>
-      {hint && <span className="mt-1 line-clamp-2 text-center text-[11px] leading-tight text-stone-600">{hint}</span>}
+      {hint && <span className="mt-1 line-clamp-2 text-center text-xs leading-tight text-ink-soft">{hint}</span>}
       {shortcut !== undefined && (
-        <kbd className="absolute left-1 top-1 rounded bg-stone-100 px-1 font-sans text-[10px] font-semibold text-stone-500">
+        <kbd className="absolute left-1 top-1 rounded-sheet bg-tack px-1 font-sans text-xs font-bold text-ink-soft">
           {shortcut}
         </kbd>
       )}
       {keywords && !hint && (
-        <span className="pointer-events-none absolute inset-x-1 bottom-1 truncate rounded bg-white/90 px-1 text-[10px] text-stone-600 opacity-0 group-hover:opacity-100">
+        <span className="pointer-events-none absolute inset-x-1 bottom-1 truncate rounded-sheet bg-sheet/95 px-1 text-xs text-ink-soft opacity-0 transition-opacity duration-(--duration-swap) ease-out group-hover:opacity-100">
           {keywords.slice(0, 3).join(", ")}
         </span>
       )}
@@ -99,7 +99,7 @@ export function PictoPicker({ word, onChange, onClose, review }: Props) {
       ref={dialog}
       onClose={onClose}
       onClick={(e) => e.target === dialog.current && dialog.current?.close()}
-      className="m-auto max-h-[92vh] w-[min(920px,94vw)] overflow-hidden rounded-3xl bg-white p-0 shadow-2xl backdrop:bg-stone-900/50"
+      className="m-auto max-h-[92vh] w-[min(920px,94vw)] overflow-hidden rounded-sheet p-0 shadow-dialog"
     >
       {/* Remonté à chaque mot pendant la revue : recherche et minuteries repartent de zéro. */}
       <PickerBody key={word.id} word={word} onChange={onChange} review={review} close={() => dialog.current?.close()} />
@@ -190,12 +190,12 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
   return (
     <div className="flex max-h-[92vh] flex-col">
       {review && (
-        <div className="flex flex-wrap items-center gap-3 border-b border-amber-200 bg-amber-50 px-6 py-2.5 text-sm text-amber-950">
-          <span className="font-medium tabular-nums">
+        <div className="flex flex-wrap items-center gap-3 border-b border-attention/30 bg-attention-wash px-6 py-2.5 text-sm text-attention">
+          <span className="font-bold tabular-nums">
             {review.position + 1} / {review.total}
           </span>
           <span
-            className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-full bg-amber-200"
+            className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-full bg-attention/20"
             role="progressbar"
             aria-label="Avancement de la revue"
             aria-valuemin={1}
@@ -203,32 +203,32 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             aria-valuenow={review.position + 1}
           >
             <span
-              className="block h-full rounded-full bg-amber-600 transition-[width]"
-              style={{ width: `${((review.position + 1) / review.total) * 100}%` }}
+              className="block h-full origin-left rounded-full bg-attention transition-transform duration-(--duration-hover) ease-out"
+              style={{ transform: `scaleX(${(review.position + 1) / review.total})` }}
             />
           </span>
           <button
             onClick={review.onPrev}
             disabled={review.position === 0}
-            className="rounded-full px-3 py-1 hover:bg-amber-100 disabled:opacity-40"
+            className="btn-secondary btn-sm border-attention text-attention hover:bg-sheet"
             aria-label="Précédent"
           >
             ←
           </button>
-          <button onClick={keepAndNext} className="rounded-full bg-amber-900 px-4 py-1 font-medium text-white hover:bg-amber-800">
+          <button onClick={keepAndNext} className="btn-primary btn-sm">
             {review.position + 1 === review.total ? "Terminer" : "Suivant →"}
           </button>
         </div>
       )}
-      <header className="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-4">
+      <header className="flex items-start justify-between gap-4 border-b border-rule px-6 py-4">
         <div className="min-w-0">
-          <h3 className="text-xl font-semibold tracking-wide text-stone-900">{word.label.toLocaleUpperCase("fr-FR")}</h3>
+          <h3 className="font-display text-section font-bold tracking-[0.02em]">{word.label.toLocaleUpperCase("fr-FR")}</h3>
           {word.example && (
-            <p className="mt-1 line-clamp-2 text-sm text-stone-500">
+            <p className="mt-1 line-clamp-2 text-sm text-ink-soft">
               «{" "}
               {splitOnForms(word.example, [word.lemma, ...word.forms]).map(([part, isWord], i) =>
                 isWord ? (
-                  <mark key={i} className="rounded bg-amber-100 px-0.5 font-medium text-stone-900">
+                  <mark key={i} className="rounded-sheet bg-attention-wash px-0.5 font-bold text-ink">
                     {part}
                   </mark>
                 ) : (
@@ -239,7 +239,11 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             </p>
           )}
         </div>
-        <button onClick={close} className="rounded-full px-3 py-1 text-xl leading-none text-stone-500 hover:bg-stone-100" aria-label="Fermer">
+        <button
+          onClick={close}
+          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-2xl leading-none text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+          aria-label="Fermer"
+        >
           ×
         </button>
       </header>
@@ -251,7 +255,7 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             <input
               value={word.label}
               onChange={(e) => onChange({ label: e.target.value })}
-              className="rounded-xl border border-stone-300 px-3 py-2 uppercase outline-none focus:border-emerald-600"
+              className="field font-display font-bold uppercase"
             />
           </label>
           <div className="flex items-center text-sm">
@@ -264,12 +268,12 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm text-stone-700">
-          <label className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-4 text-sm text-ink">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={word.plural} onChange={(e) => onChange({ plural: e.target.checked })} />
             Pluriel
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={word.noColor} onChange={(e) => onChange({ noColor: e.target.checked })} />
             Noir et blanc
           </label>
@@ -312,16 +316,16 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Chercher…"
-              className="min-w-0 flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              className="field min-w-0 flex-1 text-sm"
             />
-            <button className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">
+            <button className="btn-primary">
               Chercher
             </button>
           </form>
-          {searching && <p className="text-sm text-stone-500">Recherche…</p>}
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {searching && <p className="text-sm text-ink-soft">Recherche…</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           {results && !searching && extra.length === 0 && (
-            <p className="text-sm text-stone-500">Aucun résultat.</p>
+            <p className="text-sm text-ink-soft">Aucun résultat.</p>
           )}
           {extra.length > 0 && (
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6">
@@ -343,11 +347,8 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
           )}
         </section>
 
-        <section className="flex flex-wrap items-center gap-3 border-t border-stone-200 pt-4 text-sm">
-          <button
-            onClick={() => fileInput.current?.click()}
-            className="rounded-full border border-stone-300 px-4 py-2 hover:bg-stone-50"
-          >
+        <section className="flex flex-wrap items-center gap-4 border-t border-rule pt-4 text-sm">
+          <button onClick={() => fileInput.current?.click()} className="btn-secondary btn-sm">
             Mon image…
           </button>
           <input
@@ -362,13 +363,13 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             }}
           />
           {word.customImage && (
-            <button onClick={() => onChange({ customImage: undefined })} className="text-stone-600 underline">
+            <button onClick={() => onChange({ customImage: undefined })} className="btn-quiet">
               Revenir au pictogramme
             </button>
           )}
           <button
             onClick={() => onChange({ pictoId: null, pictoChosen: true, customImage: undefined })}
-            className="text-stone-600 underline underline-offset-2"
+            className="btn-quiet"
           >
             Sans image
           </button>

@@ -72,15 +72,15 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
   return (
     <section aria-label="Texte" className="flex flex-col gap-4">
       <div className="flex">
-        <div role="tablist" aria-label="Type de support" className="flex rounded-full bg-stone-100 p-1 text-sm">
+        <div role="tablist" aria-label="Type de support" className="flex gap-1 rounded-control bg-tack p-1 text-sm">
           {tabs.map((t) => (
             <button
               key={t.id}
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`rounded-full px-4 py-1.5 transition ${
-                tab === t.id ? "bg-white font-medium text-stone-900 shadow-sm" : "text-stone-600 hover:text-stone-900"
+              className={`cursor-pointer rounded-control px-4 py-2 font-bold transition-[background-color,color,box-shadow] duration-(--duration-swap) ease-out ${
+                tab === t.id ? "bg-sheet text-ink shadow-sheet" : "text-ink-soft hover:text-ink"
               }`}
             >
               {t.label}
@@ -102,13 +102,13 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
             const f = e.dataTransfer.files[0];
             if (f) importFile(f);
           }}
-          className={`flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition ${
-            dragging ? "border-emerald-500 bg-emerald-50" : "border-stone-300 bg-stone-50"
+          className={`flex flex-col items-center gap-3 rounded-sheet border-2 border-dashed px-6 py-10 text-center transition-colors duration-(--duration-swap) ease-out ${
+            dragging ? "border-ink-blue bg-ink-blue-wash" : "border-line bg-tack/50"
           }`}
         >
           <button
             onClick={() => fileInput.current?.click()}
-            className="rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white hover:bg-stone-700"
+            className="btn-primary"
           >
             Choisir un fichier
           </button>
@@ -144,12 +144,12 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
             placeholder="https://…"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="min-w-0 flex-1 rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-stone-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
+            className="field min-w-0 flex-1"
           />
           <button
             type="submit"
             disabled={Boolean(busy)}
-            className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50"
+            className="btn-primary"
           >
             Importer
           </button>
@@ -157,21 +157,24 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
       )}
 
       {busy && (
-        <div role="status" className="flex flex-col gap-2 rounded-xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
+        <div role="status" className="flex flex-col gap-2 rounded-control bg-tack px-4 py-3 text-sm text-ink">
           <span>{busy}</span>
           {ratio !== undefined && (
-            <div className="h-1.5 overflow-hidden rounded-full bg-stone-200">
-              <div className="h-full bg-emerald-600 transition-all" style={{ width: `${Math.round(ratio * 100)}%` }} />
+            <div className="h-1.5 overflow-hidden rounded-full bg-rule">
+              <div
+                className="h-full origin-left bg-ink-blue transition-transform duration-(--duration-swap) ease-out"
+                style={{ transform: `scaleX(${ratio})` }}
+              />
             </div>
           )}
         </div>
       )}
       {error && (
-        <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p role="alert" className="rounded-control border border-danger/30 bg-danger-wash px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
-      {notice && !busy && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{notice}</p>}
+      {notice && !busy && <p className="rounded-control border border-attention/30 bg-attention-wash px-4 py-3 text-sm text-attention">{notice}</p>}
 
       <div className="flex flex-col gap-2">
         <label htmlFor="source-text" className="sr-only">
@@ -183,12 +186,12 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
           onChange={(e) => onText(e.target.value)}
           rows={10}
           placeholder="Collez un texte…"
-          className="w-full resize-y rounded-2xl border border-stone-300 bg-white px-4 py-3 leading-relaxed text-stone-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
+          className="field w-full resize-y px-4 py-3 leading-relaxed"
         />
         <div className="flex flex-wrap items-center gap-3">
           {!text.trim() && (
             <button
-              className="text-xs text-stone-500 underline underline-offset-2 hover:text-stone-800"
+              className="btn-quiet"
               onClick={() => onText(EXAMPLE, "Le Petit Chaperon Rouge")}
             >
               Exemple
@@ -197,7 +200,7 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing }: Props) {
           <button
             onClick={onAnalyze}
             disabled={!text.trim() || analyzing}
-            className="ml-auto rounded-full bg-emerald-700 px-6 py-2.5 font-medium text-white shadow-sm hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-primary ml-auto px-6 text-base"
           >
             {analyzing ? "Analyse…" : "Analyser"}
           </button>

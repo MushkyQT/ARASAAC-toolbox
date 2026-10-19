@@ -103,8 +103,7 @@ export function ExportPanel({ cards, settings, onSettings, title }: Props) {
       download(blob, `${fileBase(title)}-images.zip`);
     });
 
-  const btn =
-    "rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 text-left";
+  const btn = "w-full justify-start";
 
   return (
     <section aria-label="Planche" className="flex flex-col gap-5">
@@ -117,8 +116,8 @@ export function ExportPanel({ cards, settings, onSettings, title }: Props) {
               key={s.mm}
               onClick={() => onSettings({ sizeMm: s.mm })}
               aria-pressed={settings.sizeMm === s.mm}
-              className={`rounded-full border px-3 py-1 text-sm ${
-                settings.sizeMm === s.mm ? "border-stone-900 bg-stone-900 text-white" : "border-stone-300 hover:bg-stone-50"
+              className={`cursor-pointer rounded-control border-2 border-ink px-3 py-1 text-sm font-bold tabular-nums transition-colors duration-(--duration-swap) ease-out ${
+                settings.sizeMm === s.mm ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"
               }`}
             >
               {s.label}
@@ -129,11 +128,11 @@ export function ExportPanel({ cards, settings, onSettings, title }: Props) {
 
       <div className="grid grid-cols-2 gap-4 text-sm">
         <label className="flex flex-col gap-1">
-          <span className="font-medium text-stone-700">Police</span>
+          <span className="label-caps">Police</span>
           <select
             value={settings.font}
             onChange={(e) => onSettings({ font: e.target.value as FontId })}
-            className="rounded-lg border border-stone-300 bg-white px-2 py-1.5"
+            className="field cursor-pointer px-2"
           >
             {Object.entries(FONTS).map(([id, f]) => (
               <option key={id} value={id}>
@@ -143,7 +142,9 @@ export function ExportPanel({ cards, settings, onSettings, title }: Props) {
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="font-medium text-stone-700">Bordure : {settings.borderMm.toLocaleString("fr-FR")} mm</span>
+          <span className="label-caps">
+            Bordure : <span className="tabular-nums">{settings.borderMm.toLocaleString("fr-FR")}</span> mm
+          </span>
           <input
             type="range"
             min={1}
@@ -151,63 +152,63 @@ export function ExportPanel({ cards, settings, onSettings, title }: Props) {
             step={0.5}
             value={settings.borderMm}
             onChange={(e) => onSettings({ borderMm: Number(e.target.value) })}
-            className="accent-emerald-700"
+            className="h-10 cursor-pointer"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="font-medium text-stone-700">Ordre</span>
+          <span className="label-caps">Ordre</span>
           <select
             value={settings.order}
             onChange={(e) => onSettings({ order: e.target.value as CardSettings["order"] })}
-            className="rounded-lg border border-stone-300 bg-white px-2 py-1.5"
+            className="field cursor-pointer px-2"
           >
             <option value="text">Texte</option>
             <option value="category">Par couleur</option>
             <option value="alpha">Alphabétique</option>
           </select>
         </label>
-        <div className="flex flex-col gap-1.5 pt-1 text-stone-700">
-          <label className="flex items-center gap-2">
+        <div className="flex flex-col gap-1.5 pt-1 text-ink">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={settings.bold} onChange={(e) => onSettings({ bold: e.target.checked })} /> Gras
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={settings.rounded} onChange={(e) => onSettings({ rounded: e.target.checked })} /> Coins arrondis
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={settings.cutMarks} onChange={(e) => onSettings({ cutMarks: e.target.checked })} /> Repères
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={settings.blackWhite} onChange={(e) => onSettings({ blackWhite: e.target.checked })} /> Noir et blanc
           </label>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <button onClick={exportPdf} disabled={empty || Boolean(busy)} className={`${btn} bg-emerald-700 text-white shadow-sm hover:bg-emerald-800`}>
+        <button onClick={exportPdf} disabled={empty || Boolean(busy)} className={`btn-primary ${btn}`}>
           PDF
         </button>
-        <button onClick={() => exportPptx("sheet")} disabled={empty || Boolean(busy)} className={`${btn} border border-stone-300 bg-white hover:bg-stone-50`}>
+        <button onClick={() => exportPptx("sheet")} disabled={empty || Boolean(busy)} className={`btn-secondary ${btn}`}>
           Canva : planches A4
         </button>
-        <button onClick={() => exportPptx("single")} disabled={empty || Boolean(busy)} className={`${btn} border border-stone-300 bg-white hover:bg-stone-50`}>
+        <button onClick={() => exportPptx("single")} disabled={empty || Boolean(busy)} className={`btn-secondary ${btn}`}>
           Canva : une carte par page
         </button>
-        <button onClick={exportPng} disabled={empty || Boolean(busy)} className={`${btn} border border-stone-300 bg-white hover:bg-stone-50`}>
+        <button onClick={exportPng} disabled={empty || Boolean(busy)} className={`btn-secondary ${btn}`}>
           Images PNG (.zip)
         </button>
       </div>
 
       {busy && (
-        <p role="status" className="text-sm text-stone-600">
+        <p role="status" className="text-sm text-ink-soft">
           {busy}
         </p>
       )}
       {error && (
-        <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="rounded-control border border-danger/30 bg-danger-wash px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
-      <p className="text-xs text-stone-500">Imprimer en taille réelle (100 %).</p>
+      <p className="text-sm text-ink-soft">Imprimer en taille réelle (100 %).</p>
     </section>
   );
 }

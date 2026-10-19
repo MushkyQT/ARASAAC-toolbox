@@ -41,8 +41,8 @@ export function SenseStrip({ word, onUpdate, onMore }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-1">
-      <div role="radiogroup" aria-label={`Image pour ${word.label}`} className="flex gap-1">
+    <div className="flex flex-wrap items-center gap-1">
+      <div role="radiogroup" aria-label={`Image pour ${word.label}`} className="flex flex-wrap gap-1">
         {shown.map(([id], i) => {
           const active = id === word.pictoId;
           return (
@@ -60,8 +60,8 @@ export function SenseStrip({ word, onUpdate, onMore }: Props) {
               onKeyDown={(e) => onKeyDown(e, i)}
               onMouseEnter={() => loadKeywords(id)}
               onFocus={() => loadKeywords(id)}
-              className={`h-9 w-9 rounded-md border bg-white p-0.5 transition hover:border-stone-500 ${
-                active ? "border-stone-900 ring-2 ring-stone-900" : "border-stone-200"
+              className={`h-9 w-9 cursor-pointer rounded-sheet border bg-sheet p-0.5 transition-[border-color,box-shadow,background-color] duration-(--duration-swap) ease-out ${
+                active ? "border-ink-blue bg-ink-blue-wash ring-2 ring-ink-blue" : "border-rule hover:border-ink"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +78,7 @@ export function SenseStrip({ word, onUpdate, onMore }: Props) {
       {hidden > 0 && (
         <button
           onClick={onMore}
-          className="h-9 rounded-md border border-dashed border-stone-300 px-2 text-xs font-medium text-stone-600 hover:bg-stone-50"
+          className="h-9 cursor-pointer rounded-sheet border border-dashed border-line px-2 text-xs font-bold text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
           aria-label={`Voir les ${total} images de ${word.label}`}
         >
           +{hidden}

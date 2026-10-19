@@ -194,7 +194,8 @@ export function Workbench() {
   return (
     <div className="flex flex-col gap-10">
       {editingSource || project.words.length === 0 ? (
-        <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="sheet p-4 sm:p-6">
+          <h2 className="mb-4 font-display text-section font-bold">Le support</h2>
           <SourcePanel
             text={project.text}
             onText={(text, title) => dispatch({ type: "text", text, title })}
@@ -202,18 +203,18 @@ export function Workbench() {
             analyzing={analyzing}
           />
           {error && (
-            <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+            <p role="alert" className="mt-4 rounded-control border border-danger/30 bg-danger-wash px-4 py-3 text-sm text-danger">
               {error}
             </p>
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-stone-200 bg-white px-6 py-4 shadow-sm">
-          <p className="min-w-0 truncate text-sm font-medium text-stone-900">{project.title || "Sans titre"}</p>
+        <div className="sheet flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <p className="min-w-0 truncate font-display text-keyword font-bold">{project.title || "Sans titre"}</p>
           <div className="flex gap-2">
             <button
               onClick={() => setEditingSource(true)}
-              className="rounded-full border border-stone-300 px-4 py-1.5 text-sm hover:bg-stone-50"
+              className="btn-secondary btn-sm"
             >
               Modifier
             </button>
@@ -224,7 +225,7 @@ export function Workbench() {
                 clearProject();
                 setEditingSource(true);
               }}
-              className="rounded-full border border-stone-300 px-4 py-1.5 text-sm hover:bg-stone-50"
+              className="btn-secondary btn-sm"
             >
               Nouveau
             </button>
@@ -233,7 +234,7 @@ export function Workbench() {
       )}
 
       {project.words.length > 0 && (
-        <div ref={wordsRef} className="grid scroll-mt-6 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)]">
+        <div ref={wordsRef} className="grid scroll-mt-6 grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)]">
           <WordBoard
             words={project.words}
             perPage={perPage}
@@ -243,8 +244,9 @@ export function Workbench() {
             onAddSense={addSense}
             onRemove={(id) => dispatch({ type: "remove", id })}
           />
-          <aside className="flex flex-col gap-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:pr-1">
-            <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+          <aside className="flex flex-col gap-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:px-1 lg:pt-2">
+            <div className="sheet p-4 sm:p-6">
+              <h2 className="mb-4 font-display text-section font-bold">La planche</h2>
               <ExportPanel
                 cards={cards}
                 settings={project.settings}

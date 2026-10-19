@@ -32,11 +32,11 @@ export function SheetPreview({ cards, settings, measure, fontFamily }: Props) {
   const pages = Math.max(1, Math.ceil(cards.length / grid.perPage));
 
   return (
-    <div ref={ref} className="flex w-full flex-col items-center gap-6">
+    <div ref={ref} className="flex w-full flex-col items-center gap-8 pt-2">
       {Array.from({ length: pages }, (_, p) => (
         <figure key={p}>
           <div
-            className="relative bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.08)] ring-1 ring-stone-200"
+            className="sheet relative bg-paper"
             style={{ width: A4.width * scale, height: A4.height * scale }}
           >
             {cards.slice(p * grid.perPage, (p + 1) * grid.perPage).map((card, i) => {

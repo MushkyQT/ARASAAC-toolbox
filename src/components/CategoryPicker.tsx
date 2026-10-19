@@ -23,14 +23,10 @@ export function CategoryPicker({ value, onChange, label, size = "sm" }: Props) {
             aria-checked={active}
             title={c.label}
             onClick={() => onChange(code)}
-            className={`rounded-full border-2 transition ${size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-3 py-1 text-xs"} ${
-              active ? "font-semibold" : "opacity-60 hover:opacity-100"
-            }`}
-            style={{
-              borderColor: c.color,
-              background: active ? c.color : "white",
-              color: active ? c.onColor : "#44403c",
-            }}
+            className={`cursor-pointer rounded-control border-2 font-bold transition-colors duration-(--duration-swap) ease-out ${
+              size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-xs"
+            } ${active ? "" : "bg-sheet text-ink-soft hover:bg-tack hover:text-ink"}`}
+            style={{ borderColor: c.color, ...(active ? { background: c.color, color: c.onColor } : {}) }}
           >
             {c.short}
           </button>

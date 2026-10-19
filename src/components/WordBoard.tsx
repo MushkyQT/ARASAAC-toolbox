@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { CATEGORIES, CATEGORY_ORDER, type CategoryCode } from "@/lib/categories";
 import { pictoImageUrl } from "@/lib/arasaac";
 import { hasChoices, needsReview } from "@/lib/senses";
@@ -10,6 +10,9 @@ import { SenseStrip } from "./SenseStrip";
 
 /** Filtre de la liste : une catégorie, ou les mots qui ont plusieurs images possibles. */
 type Filter = CategoryCode | "choices" | null;
+
+const CHIP =
+  "flex cursor-pointer items-center gap-2 rounded-control border-2 px-3 py-1 text-sm font-bold transition-colors duration-(--duration-swap) ease-out";
 
 interface Props {
   words: WordItem[];
@@ -23,14 +26,23 @@ interface Props {
   onRemove: (id: string) => void;
 }
 
+/** Inclinaison de la mini-carte (±0,6°), stable pour un même mot : posée à la main, pas au hasard à chaque rendu. */
+function tiltOf(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return ((Math.abs(h) % 13) - 6) / 10;
+}
+
 function WordTile({
   word,
+  index,
   onUpdate,
   onOpen,
   onRemove,
   onAddSense,
 }: {
   word: WordItem;
+  index: number;
   onUpdate: (patch: Partial<WordItem>) => void;
   onOpen: () => void;
   onRemove: () => void;
@@ -43,27 +55,25 @@ function WordTile({
 
   return (
     <li
-      className={`group relative flex gap-3 rounded-2xl border bg-white p-3 transition ${
-        word.selected ? "border-stone-300 shadow-sm" : "border-stone-200 opacity-55 hover:opacity-90"
+      className={`group relative flex gap-3 rounded-sheet border border-rule bg-sheet p-3 transition-opacity duration-(--duration-swap) ease-out ${
+        word.selected ? "" : "opacity-55 hover:opacity-90"
       }`}
     >
       <button
         onClick={onOpen}
-        className="relative h-20 w-20 shrink-0 rounded-xl border-[3px] bg-white p-1.5 transition hover:scale-[1.03]"
-        style={{ borderColor: color }}
+        className="mini-card relative h-20 w-20 shrink-0 cursor-pointer rounded-sheet border-4 bg-sheet p-1.5"
+        style={{ borderColor: color, "--tilt": `${tiltOf(word.id)}deg`, "--i": index } as CSSProperties}
         aria-label={`Choisir le pictogramme de ${word.label}`}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className="h-full w-full object-contain" loading="lazy" />
+          <img key={image} src={image} alt="" className="swap-in h-full w-full object-contain" loading="lazy" />
         ) : (
-          <span className="flex h-full items-center justify-center text-center text-2xl text-stone-400">
-            +
-          </span>
+          <span className="flex h-full items-center justify-center text-center text-2xl text-ink-soft">+</span>
         )}
         {needsReview(word) && (
           <span
-            className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-amber-500"
+            className="absolute -right-2 -top-2 h-3.5 w-3.5 rounded-full border-2 border-sheet bg-attention"
             aria-hidden
           />
         )}
@@ -74,13 +84,13 @@ function WordTile({
             type="checkbox"
             checked={word.selected}
             onChange={(e) => onUpdate({ selected: e.target.checked })}
-            className="mt-1 h-4 w-4 shrink-0 accent-emerald-700"
+            className="mt-1 h-[18px] w-[18px] shrink-0 cursor-pointer"
             aria-label={`Inclure ${word.label}`}
           />
           <input
             value={word.label}
             onChange={(e) => onUpdate({ label: e.target.value })}
-            className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 font-semibold uppercase tracking-wide text-stone-900 outline-none hover:border-stone-200 focus:border-emerald-600"
+            className="min-w-0 flex-1 rounded-control border border-transparent bg-transparent px-1 font-display text-keyword font-bold uppercase tracking-[0.02em] text-ink outline-none transition-colors duration-(--duration-swap) ease-out hover:border-line focus:border-ink-blue focus:shadow-focus"
             title={word.label}
             aria-label="Mot écrit sur la carte"
           />
@@ -89,7 +99,7 @@ function WordTile({
           value={word.category}
           onChange={(e) => onUpdate({ category: e.target.value as CategoryCode, categoryLocked: true })}
           aria-label={`Catégorie de ${word.label}`}
-          className="self-start cursor-pointer rounded-full border-0 py-0.5 pl-2.5 pr-7 text-xs font-medium"
+          className="max-w-full self-start cursor-pointer truncate rounded-control border-0 py-1 pl-2.5 pr-7 text-xs font-bold"
           style={{ background: color, color: CATEGORIES[word.category].onColor }}
         >
           {CATEGORY_ORDER.map((code) => (
@@ -103,7 +113,7 @@ function WordTile({
             <SenseStrip word={word} onUpdate={onUpdate} onMore={onOpen} />
             <button
               onClick={onAddSense}
-              className="text-xs text-stone-500 underline-offset-2 hover:text-stone-800 hover:underline"
+              className="btn-quiet text-xs"
               title="Ajouter une deuxième carte pour ce mot, avec une autre image"
             >
               + Autre sens
@@ -113,7 +123,7 @@ function WordTile({
       </div>
       <button
         onClick={onRemove}
-        className="absolute right-2 top-2 rounded-full px-1.5 text-stone-400 opacity-0 transition hover:bg-stone-100 hover:text-stone-700 group-hover:opacity-100 focus:opacity-100"
+        className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-control text-lg leading-none text-ink-soft opacity-0 transition-[opacity,background-color,color] duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink group-hover:opacity-100 focus:opacity-100"
         aria-label={`Retirer ${word.label}`}
         title="Retirer de la liste"
       >
@@ -153,22 +163,25 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
   }
 
   return (
-    <section aria-label="Mots" className="flex flex-col gap-4">
+    <section aria-labelledby="words-title" className="sheet flex flex-col gap-4 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-stone-500">
+        <h2 id="words-title" className="font-display text-section font-bold">
+          Les mots-clés
+        </h2>
+        <p className="label-caps tabular-nums">
           {selected} carte{selected > 1 ? "s" : ""} · {Math.max(1, Math.ceil(selected / perPage))} page
           {Math.ceil(selected / perPage) > 1 ? "s" : ""}
         </p>
-        <div className="flex gap-2 text-sm">
+        <div className="ml-auto flex gap-2">
           <button
             onClick={() => onSelectAll(true, filter ? visible.map((w) => w.id) : undefined)}
-            className="rounded-full border border-stone-300 px-3 py-1 hover:bg-stone-50"
+            className="btn-secondary btn-sm"
           >
             Tout cocher
           </button>
           <button
             onClick={() => onSelectAll(false, filter ? visible.map((w) => w.id) : undefined)}
-            className="rounded-full border border-stone-300 px-3 py-1 hover:bg-stone-50"
+            className="btn-secondary btn-sm"
           >
             Tout décocher
           </button>
@@ -178,7 +191,8 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
       <div className="flex flex-wrap gap-2" role="toolbar" aria-label="Filtrer par catégorie">
         <button
           onClick={() => setFilter(null)}
-          className={`rounded-full px-3 py-1 text-sm ${filter === null ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700 hover:bg-stone-200"}`}
+          aria-pressed={filter === null}
+          className={`${CHIP} border-ink ${filter === null ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"}`}
         >
           Tous ({words.length})
         </button>
@@ -186,9 +200,7 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
           <button
             onClick={() => setFilter(filter === "choices" ? null : "choices")}
             aria-pressed={filter === "choices"}
-            className={`rounded-full px-3 py-1 text-sm ${
-              filter === "choices" ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700 hover:bg-stone-200"
-            }`}
+            className={`${CHIP} border-ink ${filter === "choices" ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"}`}
           >
             Plusieurs images ({withChoices})
           </button>
@@ -201,23 +213,22 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
               onClick={() => setFilter(filter === code ? null : code)}
               disabled={counts[code] === 0}
               aria-pressed={filter === code}
-              className="flex items-center gap-2 rounded-full border-2 px-3 py-1 text-sm transition disabled:opacity-30"
+              className={`${CHIP} disabled:cursor-not-allowed disabled:opacity-35 ${filter === code ? "" : "bg-sheet text-ink hover:bg-tack"}`}
               style={{
                 borderColor: c.color,
-                background: filter === code ? c.color : "white",
-                color: filter === code ? c.onColor : "#292524",
+                ...(filter === code ? { background: c.color, color: c.onColor } : {}),
               }}
             >
-              {c.label} <span className="opacity-70">{counts[code]}</span>
+              {c.label} <span className="tabular-nums opacity-75">{counts[code]}</span>
             </button>
           );
         })}
       </div>
 
       {toReview.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          <span className="h-3 w-3 shrink-0 rounded-full bg-amber-500" aria-hidden />
-          <p className="min-w-0 flex-1 font-medium">
+        <div className="flex flex-wrap items-center gap-3 rounded-control border border-attention/30 bg-attention-wash px-4 py-3 text-sm text-attention">
+          <span className="h-3 w-3 shrink-0 rounded-full bg-attention" aria-hidden />
+          <p className="min-w-0 flex-1 font-bold">
             {toReview.length} image{toReview.length > 1 ? "s" : ""} à vérifier
           </p>
           <button
@@ -226,18 +237,19 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
               setQueue(ids);
               setOpenId(ids[0]);
             }}
-            className="rounded-full bg-amber-900 px-4 py-1.5 font-medium text-white hover:bg-amber-800"
+            className="btn-primary btn-sm"
           >
             Vérifier
           </button>
         </div>
       )}
 
-      <ul className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-        {visible.map((w) => (
+      <ul className="tile-enter grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2 2xl:grid-cols-3">
+        {visible.map((w, i) => (
           <WordTile
             key={w.id}
             word={w}
+            index={i}
             onUpdate={(patch) => onUpdate(w.id, patch)}
             onOpen={() => setOpenId(w.id)}
             onRemove={() => onRemove(w.id)}
@@ -268,10 +280,10 @@ export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddS
           value={newWord}
           onChange={(e) => setNewWord(e.target.value)}
           placeholder="Ajouter un mot…"
-          className="rounded-xl border border-stone-300 px-3 py-1.5 text-sm outline-none focus:border-emerald-600"
+          className="field text-sm"
         />
-        <button className="rounded-xl bg-stone-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-stone-700">Ajouter</button>
-        {addError && <span className="text-sm text-red-700">{addError}</span>}
+        <button className="btn-primary btn-sm">Ajouter</button>
+        {addError && <span className="text-sm text-danger">{addError}</span>}
       </form>
 
       {open && (

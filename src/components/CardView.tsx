@@ -27,7 +27,7 @@ export function CardView({ card, settings, measure, fontFamily, scale, className
 
   return (
     <div
-      className={`relative bg-white ${className ?? ""}`}
+      className={`relative bg-paper ${className ?? ""}`}
       style={{ width: px(s), height: px(s) }}
       aria-label={`Carte ${card.label}`}
     >
@@ -77,7 +77,7 @@ export function CardView({ card, settings, measure, fontFamily, scale, className
         />
       ) : (
         <div
-          className="absolute flex items-center justify-center rounded border border-dashed border-stone-300 text-stone-400"
+          className="absolute flex items-center justify-center rounded-sheet border border-dashed border-line text-ink-soft"
           style={{
             left: px(boxes.image.x),
             top: px(boxes.image.y),
