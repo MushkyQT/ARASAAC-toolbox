@@ -135,6 +135,10 @@ than a real loading state, any animated `width`/`height`/`top`/`left`.
 - **Quiet button** (text link actions): `ink-soft` text, underline on hover.
 - **Input / select / textarea**: `sheet` bg, 1px `line` border, `radius-control`; focus border
   `ink-blue` + 3px `ink-blue` ring at 25%.
+- **Select chevron**: never the system arrow. The icon-set chevron (2px stroke) in `ink-soft`,
+  16px, 12px from the right edge, vertically centred, with `pr-9` to clear it. On a coloured
+  category chip it is drawn in the chip's `onColor`, 14px, 8px from the edge (`--chevron`,
+  `--chevron-size`, `--chevron-inset`).
 - **Checkbox / range**: `accent-color: ink-blue`.
 - **Tabs**: `tack` track, selected tab `sheet` with `ink` text and contact shadow.
 - **Category chip**: category colour fill, its `onColor` text, `radius-control`.
@@ -143,6 +147,24 @@ than a real loading state, any animated `width`/`height`/`top`/`left`.
   in the strong colour.
 - **Word tile**: straight `sheet` row with 1px `rule` border; mini card = 80px picto square,
   4px category border, `radius-sheet`, `shadow-sheet`, tilted `--tilt` (±0.6°, from the word id).
+- **Step strip** (`.strip`, `Stepper`): a `sheet` strip without tack, sticky at the top edge.
+  Step circles 28px (24px under 640px): done = `ink-blue` fill + check, current = `ink-blue`
+  2px ring, upcoming = `line` ring; short titles and no status line under 640px.
+- **Inline field** (`.inline-field`): text edited in place (card word, document title). Transparent,
+  1px dashed `line` underline at rest (a line to fill in), `tack` wash on hover, full field focus.
+  Its label is a sentence-case `ink-soft` hint under the field, never an uppercase label above it.
+- **Word chip** (`.bank-chip`, "Autres mots du texte"): `sheet` fill, 1px `rule` border,
+  `radius-control`, 15px bold label, a 32px thumbnail with a 2px category-colour border (a mini
+  card in miniature), occurrence count `×3` in `ink-soft`, `+` icon turning `ink-blue` on hover.
+- **Text view** (`.tv-*`): 70ch measure, 17px / 1.8. A keyword is underlined dotted `line` (proposed)
+  or solid 3px in its category colour on an `ink-blue-wash` ground (on the board). Ignored text is
+  `ink-soft` on a `tack` wash, struck through; a fully ignored paragraph is a dashed `line` block;
+  three or more in a row fold into one block with "Afficher" and "Tout inclure".
+- **Disclosure** (export panel): 1px `rule` box, `radius-control`; the summary line states the
+  current values (« 8 cm · Open Sans · bordure 2 mm ») so nothing hides what will be printed.
+- **Undo toast** (`Toast`): `ink` fill, `sheet` text, `shadow-dialog`, bottom centre, 10s, always
+  with "Annuler" after a removal; preferred over a confirmation dialog.
+- **Icons** (`icons.tsx`): drawn on a 20px grid, 2px stroke, round caps; no typed glyphs (×, ←, +).
 - **Picto picker** (dialog): `sheet`, `radius-sheet`, `shadow-dialog`; backdrop `ink` at 45%,
   no blur.
 

@@ -13,29 +13,48 @@ Transforme une histoire, un album, un conte ou une recette en **cartes pictogram
 
 ## Parcours
 
-1. **Le support**. Coller un texte, déposer un fichier (PDF, Word `.docx`, OpenDocument `.odt`, `.txt`, photo d'une page), ou donner un lien web.
+Les trois étapes restent visibles en haut de l'écran (**1 Le texte · 2 Les mots · 3 L'impression**), avec leur état : nombre de mots du texte, de cartes choisies et à vérifier, de pages A4. Un clic sur une étape y mène.
+
+1. **Le texte**. Coller un texte dans le cadre, importer un fichier (PDF, Word `.docx`, OpenDocument `.odt`, `.txt`, photo d'une page : on peut aussi le déposer sur la feuille), ou importer une page web.
    - Les PDF scannés et les photos sont lus par OCR (tesseract.js, en français).
    - Pour les recettes en ligne (Marmiton, 750g…), les ingrédients et les étapes sont extraits des données schema.org.
-   - Le texte reste toujours modifiable avant l'analyse.
-2. **Les mots-clés**. L'analyse repère les verbes, noms, adjectifs, lieux, temps et personnages, et les ramène à leur forme de base :
+   - Le texte reste toujours modifiable. Après une retouche, **Mettre à jour les mots** garde les cartes déjà choisies et leurs images.
+   - Un texte collé sans titre prend sa première ligne comme titre, s'il en a l'air ; le titre nomme aussi les fichiers téléchargés.
+2. **Les mots**. Avant l'analyse, les **passages qui ne font pas partie de l'histoire ou de la recette** sont repérés et laissés de côté, par des règles fixes (sans IA, `src/lib/nlp/passages.ts`) :
+   - mentions légales (©, droits réservés, ISBN, dépôt légal, licence Creative Commons, cookies, licence du projet Gutenberg) ;
+   - crédits et édition (« Texte de… », « Illustrations de… », éditeur, collection, imprimeur) ;
+   - liens, adresses e-mail ou postales, numéros de téléphone ;
+   - menus et boutons d'un site (fil d'Ariane, « Partager sur Facebook », « Imprimer la recette », newsletter, commentaires, « Ces recettes pourraient aussi vous plaire ») ;
+   - infos pratiques (temps de préparation, nombre de personnes, difficulté, numéro de page, fiche pédagogique) ;
+   - texte dans une autre langue (licence en anglais).
+
+   Leurs mots ne sont ni proposés ni présélectionnés. Un bandeau indique combien de passages ont été ignorés et pourquoi ; dans la vue **Dans le texte**, chacun s'affiche en grisé avec un bouton **Inclure**, et n'importe quel paragraphe peut à l'inverse être ignoré. Dans un long paragraphe, seule la phrase en cause est écartée. Un retour en début de ligne (titre, liste d'ingrédients) n'est plus pris pour un nom propre.
+
+   L'analyse repère ensuite les verbes, noms, adjectifs, lieux, temps et personnages, et les ramène à leur forme de base :
    - « rencontra » → rencontrer ;
    - « petites » → petit ;
    - « se brosse les dents » → se brosser les dents.
 
-   Les mots les plus importants sont présélectionnés. Quand un mot a plusieurs pictogrammes (« mélanger » un liquide, une pâte au fouet, des cartes…) :
+   Les mots les plus importants sont présélectionnés (jamais les verbes passe-partout comme « faire » ou « dire », ni les mots inconnus d'ARASAAC qui ne sont pas des personnages). Deux vues :
+   - **Liste** : en haut, **Sur la planche**, les cartes qui seront imprimées, dans l'ordre d'impression ; en dessous, **Autres mots du texte**, une étiquette par mot avec sa petite image et son nombre d'occurrences, triée par importance (ou dans l'ordre du texte, ou alphabétique). Un clic l'ajoute à la planche, le survol montre la phrase. Pour un long texte, seuls les mots fréquents et les plus importants s'affichent d'emblée, les autres derrière un bouton. Les filtres par couleur s'appliquent aux deux.
+   - **Dans le texte** : le texte lui-même, mots-clés soulignés (en couleur s'ils sont sur la planche, en pointillé sinon). Un clic ajoute ou retire le mot ; au clavier, les flèches passent d'un mot à l'autre et Entrée le coche.
+
+   Retirer une carte, ignorer un passage ou commencer un nouveau document affiche un message avec **Annuler**.
+
+   Quand un mot a plusieurs pictogrammes (« mélanger » un liquide, une pâte au fouet, des cartes…) :
    - ses premières images s'affichent sous la tuile : un clic ou les flèches suffisent pour changer ;
-   - une pastille orange signale les mots dont l'image a été prise par défaut, et un bandeau propose de les **choisir mot par mot**. L'image est alors légendée par ses synonymes ARASAAC (« remuer », « fouetter »…), le mot est surligné dans sa phrase, et on choisit d'un clic ou au clavier (touches 1 à 9, ← →) ;
+   - « Image à vérifier » signale les mots dont l'image a été prise par défaut, et un bandeau propose de les **vérifier une par une**. L'image est alors légendée par ses synonymes ARASAAC (« remuer », « fouetter »…), le mot est surligné dans sa phrase, et on choisit d'un clic ou au clavier (touches 1 à 9, ← →) ;
    - le choix est mémorisé, donc le mot n'est plus signalé dans les textes suivants ;
    - si le mot revient avec deux sens (« l'avocat mange un avocat »), **+ Autre sens** ajoute une deuxième carte juste après, avec une autre image. Cette copie n'est pas mémorisée : le sens principal reste celui proposé la fois suivante.
 
-   Cliquer sur une image ouvre toutes les propositions ARASAAC pour ce mot, avec :
+   Cliquer sur une image (sur la planche ou dans l'aperçu) ouvre toutes les propositions ARASAAC pour ce mot, avec :
    - une recherche libre dans ARASAAC ;
    - les variantes pluriel et noir et blanc ;
-   - la possibilité d'utiliser une image personnelle ou de faire une carte sans image.
-3. **La planche**. Un aperçu fidèle des pages A4 et quatre exports :
+   - la possibilité d'utiliser une image personnelle, de faire une carte sans image, ou de retirer la carte.
+3. **L'impression**. Les réglages des cartes (taille, police, bordure, gras, coins arrondis) et de la planche (ordre, repères de découpe, noir et blanc), un aperçu fidèle des pages A4 (un clic sur une carte l'ouvre) et quatre exports, chacun expliqué sous son bouton :
    - **PDF à imprimer** : cartes exactement à la taille choisie (5, 6, 8 ou 10 cm ; 6 cartes de 8 cm par page), repères de découpe et mention de licence ARASAAC.
-   - **Fichier pour Canva, planches A4** (`.pptx`) : dans Canva, *Créer → Importer un fichier*. Bordures, textes (Open Sans) et images restent des éléments séparés et modifiables.
-   - **Fichier pour Canva, une carte par page** (`.pptx`, pages de 8 × 8 cm).
+   - **Pour Canva : planches A4** (`.pptx`) : dans Canva, *Créer → Importer un fichier*. Bordures, textes (Open Sans) et images restent des éléments séparés et modifiables.
+   - **Pour Canva : une carte par page** (`.pptx`, pages de 8 × 8 cm).
    - **Images PNG** des cartes en 300 dpi (`.zip`).
 
 Les choix de pictogrammes sont **mémorisés par mot**, si bien que « loup » garde son image d'une histoire à l'autre. Le travail en cours est sauvegardé automatiquement dans le navigateur (IndexedDB).
@@ -83,11 +102,12 @@ Le lexique (`public/data/lexicon-fr.json`, environ 5 Mo et 0,7 Mo compressé) es
 ### Arborescence
 
 ```
-src/lib/nlp/        analyse : lexique, mots outils, désambiguïsation, présélection
+src/lib/nlp/        analyse : passages ignorés, lexique, mots outils, désambiguïsation, présélection
+src/lib/words.ts    nouvelle analyse du même document : les choix déjà faits sont conservés
 src/lib/cards/      géométrie, PDF, PPTX, PNG, mesure du texte
 src/lib/ingest/     lecture PDF/DOCX/ODT/images (navigateur) et pages web (serveur)
 src/lib/arasaac.ts  URLs d'images, recherche, mention de licence
-src/components/     interface (support → mots-clés → planche)
+src/components/     interface (texte → mots → impression)
 scripts/            génération du lexique
 tests/              tests vitest et textes d'exemple
 ```

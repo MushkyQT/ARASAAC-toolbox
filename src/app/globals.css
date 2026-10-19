@@ -49,6 +49,7 @@
   --duration-hover: 160ms;
   --duration-enter: 180ms;
   --stagger: 16ms;
+  --chevron-ink: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23545A69' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 8l5 5 5-5'/></svg>");
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.9 0.08' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.24  0 0 0 0 0.12  0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
 }
 
@@ -178,7 +179,7 @@ body {
     min-height: 2.5rem;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-control);
-    background: var(--color-sheet);
+    background-color: var(--color-sheet);
     color: var(--color-ink);
     padding-inline: 0.75rem;
     transition:
@@ -196,7 +197,7 @@ body {
   }
   .field:disabled {
     border-color: var(--color-rule);
-    background: var(--color-tack);
+    background-color: var(--color-tack);
     color: var(--color-ink-soft);
     cursor: not-allowed;
   }
@@ -242,6 +243,222 @@ body {
   .swap-in {
     animation: fade var(--duration-swap) var(--ease-out) both;
   }
+
+  /* Bandeau des étapes : une feuille sans punaises, collée en haut du mur. */
+  .strip {
+    background: var(--color-sheet);
+    border-radius: var(--radius-sheet);
+    box-shadow: var(--shadow-sheet);
+  }
+
+  /* Texte modifiable sur place (mot d'une carte, titre) : une ligne pointillée à remplir. */
+  .inline-field {
+    width: 100%;
+    min-height: 2.25rem;
+    border: 1px solid transparent;
+    border-bottom: 1px dashed var(--color-line);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+    background: transparent;
+    color: var(--color-ink);
+    padding-inline: 0.25rem;
+    transition:
+      border-color var(--duration-swap) var(--ease-out),
+      background-color var(--duration-swap) var(--ease-out),
+      box-shadow var(--duration-swap) var(--ease-out);
+  }
+  .inline-field::placeholder {
+    color: var(--color-ink-soft);
+  }
+  .inline-field:hover {
+    border-bottom-color: var(--color-ink);
+    background: rgb(236 231 220 / 0.5);
+  }
+  .inline-field:focus,
+  .inline-field:focus-visible {
+    outline: none;
+    border-color: var(--color-ink-blue);
+    border-radius: var(--radius-control);
+    background: var(--color-sheet);
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Mot proposé, hors de la planche : une étiquette, un clic pour l'ajouter. */
+  .bank-chip {
+    display: flex;
+    max-width: 100%;
+    min-height: 2.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-control);
+    background: var(--color-sheet);
+    padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-swap) var(--ease-out),
+      border-color var(--duration-swap) var(--ease-out),
+      box-shadow var(--duration-swap) var(--ease-out);
+  }
+  .bank-chip:hover {
+    border-color: var(--color-ink);
+    background: var(--color-tack);
+    box-shadow: var(--shadow-sheet);
+  }
+  .bank-chip:active {
+    transform: translateY(1px);
+  }
+  .bank-thumb {
+    display: flex;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+    border-radius: var(--radius-sheet);
+    background: var(--color-sheet);
+    padding: 1px;
+  }
+
+  /* Vue « Dans le texte ». */
+  .tv {
+    max-width: 70ch;
+    font-size: 1.0625rem;
+    line-height: 1.8;
+  }
+  .tv-para {
+    position: relative;
+    padding-right: 2.75rem;
+  }
+  .tv-text {
+    white-space: pre-line;
+    overflow-wrap: break-word;
+  }
+  .tv-reflow {
+    white-space: normal;
+  }
+  .tv-mark {
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-line);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    transition:
+      background-color var(--duration-swap) var(--ease-out),
+      text-decoration-color var(--duration-swap) var(--ease-out);
+  }
+  .tv-mark:hover {
+    background: var(--color-tack);
+    text-decoration-color: var(--color-ink);
+  }
+  .tv-mark[aria-pressed="true"],
+  .tv-mark[data-on] {
+    background: var(--color-ink-blue-wash);
+    text-decoration-style: solid;
+    text-decoration-color: var(--cat);
+    text-decoration-thickness: 3px;
+  }
+  .tv-mark[aria-pressed="true"]:hover {
+    background: var(--color-tack);
+  }
+  .tv-mark:focus-visible {
+    outline: 2px solid var(--color-ink-blue);
+    outline-offset: 1px;
+  }
+  .tv-ignored {
+    border-radius: 2px;
+    background: rgb(236 231 220 / 0.7);
+    color: var(--color-ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: rgb(84 90 105 / 0.45);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .tv-include {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: var(--radius-control);
+    padding: 0 0.375rem;
+    color: var(--color-ink-soft);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.6;
+    vertical-align: 0.05em;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-swap) var(--ease-out),
+      color var(--duration-swap) var(--ease-out);
+  }
+  .tv-include:hover {
+    background: var(--color-tack);
+    color: var(--color-ink);
+  }
+  .tv-ignored-block {
+    border: 1px dashed var(--color-line);
+    border-radius: var(--radius-sheet);
+    background: rgb(236 231 220 / 0.45);
+    padding: 0.625rem 0.875rem;
+  }
+  .tv-ignored-text {
+    margin-top: 0.25rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    white-space: pre-line;
+    overflow-wrap: break-word;
+  }
+  .tv-para-action {
+    position: absolute;
+    top: 0.25rem;
+    right: 0;
+    display: flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-control);
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity var(--duration-swap) var(--ease-out),
+      background-color var(--duration-swap) var(--ease-out),
+      color var(--duration-swap) var(--ease-out);
+  }
+  .tv-para:hover .tv-para-action,
+  .tv-para:focus-within .tv-para-action {
+    opacity: 1;
+  }
+  .tv-para-action:hover {
+    background: var(--color-tack);
+    color: var(--color-ink);
+  }
+  @media (hover: none) {
+    .tv-para-action {
+      opacity: 0.7;
+    }
+  }
+
+  /* Carte de l'aperçu : cliquable pour la modifier. */
+  .preview-card {
+    border-radius: 1px;
+    transition: box-shadow var(--duration-hover) var(--ease-out);
+  }
+  .preview-card:hover {
+    box-shadow: 0 0 0 2px var(--color-ink-blue);
+  }
+
+  .toast {
+    animation: toast-in var(--duration-enter) var(--ease-out) both;
+  }
 }
 
 @keyframes land {
@@ -252,6 +469,17 @@ body {
   to {
     opacity: 1;
     transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -267,6 +495,37 @@ body {
 :focus-visible {
   outline: 3px solid var(--color-ink-blue);
   outline-offset: 3px;
+}
+
+::selection {
+  background: rgb(43 68 176 / 0.22);
+  color: var(--color-ink);
+}
+
+input,
+textarea {
+  caret-color: var(--color-ink-blue);
+}
+
+html {
+  scroll-padding-top: 7rem;
+  scrollbar-color: var(--color-kraft-deep) transparent;
+}
+aside,
+dialog,
+textarea {
+  scrollbar-color: var(--color-line) transparent;
+  scrollbar-width: thin;
+}
+
+/* Listes déroulantes : le chevron du jeu d'icônes, centré dans la marge droite, au lieu de la flèche
+   du système collée au bord. Une liste sur fond coloré passe son propre chevron dans --chevron. */
+select {
+  appearance: none;
+  background-image: var(--chevron, var(--chevron-ink));
+  background-repeat: no-repeat;
+  background-position: right var(--chevron-inset, 0.75rem) center;
+  background-size: var(--chevron-size, 1rem);
 }
 
 input[type="checkbox"],
@@ -296,5 +555,11 @@ dialog::backdrop {
   .tile-enter .mini-card {
     animation: fade var(--duration-enter) linear both;
     animation-delay: 0ms;
+  }
+  .bank-chip:active {
+    transform: none;
+  }
+  .toast {
+    animation: fade var(--duration-enter) linear both;
   }
 }

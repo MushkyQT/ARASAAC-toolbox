@@ -1,306 +1,228 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { CATEGORIES, CATEGORY_ORDER, type CategoryCode } from "@/lib/categories";
-import { pictoImageUrl } from "@/lib/arasaac";
-import { hasChoices, needsReview } from "@/lib/senses";
-import type { WordItem } from "@/lib/types";
-import { PictoPicker } from "./PictoPicker";
-import { SenseStrip } from "./SenseStrip";
+import { sortWords } from "@/lib/cards/model";
+import { NOISE_LABELS, type Passage } from "@/lib/nlp/passages";
+import { needsReview } from "@/lib/senses";
+import type { CardSettings, WordItem } from "@/lib/types";
+import { IconCards, IconEyeOff, IconText } from "./icons";
+import { TextView } from "./TextView";
+import { WordBank } from "./WordBank";
+import { WordTile } from "./WordTile";
 
-/** Filtre de la liste : une catégorie, ou les mots qui ont plusieurs images possibles. */
-type Filter = CategoryCode | "choices" | null;
+export type BoardView = "list" | "text";
 
 const CHIP =
-  "flex cursor-pointer items-center gap-2 rounded-control border-2 px-3 py-1 text-sm font-bold transition-colors duration-(--duration-swap) ease-out";
+  "flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-control border-2 px-3 py-1 text-sm font-bold transition-colors duration-(--duration-swap) ease-out";
+
+const ORDER_LABELS: Record<CardSettings["order"], string> = {
+  text: "ordre du texte",
+  category: "par couleur",
+  alpha: "ordre alphabétique",
+};
 
 interface Props {
   words: WordItem[];
+  /** Texte de référence (`canonicalText`) pour la vue « Dans le texte ». */
+  text: string;
+  passages: Passage[];
+  order: CardSettings["order"];
   perPage: number;
+  view: BoardView;
+  onView: (view: BoardView) => void;
   onUpdate: (id: string, patch: Partial<WordItem>) => void;
-  /** Coche ou décoche les mots donnés (tous si `ids` est absent). */
-  onSelectAll: (selected: boolean, ids?: string[]) => void;
+  /** Met les mots donnés sur la planche, ou les en retire. */
+  onSelect: (ids: string[], selected: boolean) => void;
+  onRemoveCard: (id: string) => void;
   onAdd: (word: string) => Promise<string | null>;
-  /** Ajoute une carte du même mot avec un autre sens ; renvoie son id. */
-  onAddSense: (id: string) => string | null;
-  onRemove: (id: string) => void;
+  /** Ajoute une carte du même mot avec un autre sens. */
+  onAddSense: (id: string) => void;
+  onOpen: (id: string) => void;
+  /** Lance la vérification des images, mot par mot. */
+  onReview: (ids: string[]) => void;
+  onPassage: (keys: string[], ignored: boolean) => void;
 }
 
-/** Inclinaison de la mini-carte (±0,6°), stable pour un même mot : posée à la main, pas au hasard à chaque rendu. */
-function tiltOf(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return ((Math.abs(h) % 13) - 6) / 10;
-}
+export function WordBoard(props: Props) {
+  const { words, text, passages, order, perPage, view, onView, onUpdate, onSelect, onRemoveCard, onAdd, onAddSense, onOpen, onReview, onPassage } =
+    props;
+  const [filter, setFilter] = useState<CategoryCode | null>(null);
 
-function WordTile({
-  word,
-  index,
-  onUpdate,
-  onOpen,
-  onRemove,
-  onAddSense,
-}: {
-  word: WordItem;
-  index: number;
-  onUpdate: (patch: Partial<WordItem>) => void;
-  onOpen: () => void;
-  onRemove: () => void;
-  onAddSense: () => void;
-}) {
-  const color = CATEGORIES[word.category].color;
-  const image =
-    word.customImage ??
-    (word.pictoId !== null ? pictoImageUrl(word.pictoId, { resolution: 300, noColor: word.noColor, plural: word.plural }) : null);
-
-  return (
-    <li
-      className={`group relative flex gap-3 rounded-sheet border border-rule bg-sheet p-3 transition-opacity duration-(--duration-swap) ease-out ${
-        word.selected ? "" : "opacity-55 hover:opacity-90"
-      }`}
-    >
-      <button
-        onClick={onOpen}
-        className="mini-card relative h-20 w-20 shrink-0 cursor-pointer rounded-sheet border-4 bg-sheet p-1.5"
-        style={{ borderColor: color, "--tilt": `${tiltOf(word.id)}deg`, "--i": index } as CSSProperties}
-        aria-label={`Choisir le pictogramme de ${word.label}`}
-      >
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={image} src={image} alt="" className="swap-in h-full w-full object-contain" loading="lazy" />
-        ) : (
-          <span className="flex h-full items-center justify-center text-center text-2xl text-ink-soft">+</span>
-        )}
-        {needsReview(word) && (
-          <span
-            className="absolute -right-2 -top-2 h-3.5 w-3.5 rounded-full border-2 border-sheet bg-attention"
-            aria-hidden
-          />
-        )}
-      </button>
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex items-start gap-2">
-          <input
-            type="checkbox"
-            checked={word.selected}
-            onChange={(e) => onUpdate({ selected: e.target.checked })}
-            className="mt-1 h-[18px] w-[18px] shrink-0 cursor-pointer"
-            aria-label={`Inclure ${word.label}`}
-          />
-          <input
-            value={word.label}
-            onChange={(e) => onUpdate({ label: e.target.value })}
-            className="min-w-0 flex-1 rounded-control border border-transparent bg-transparent px-1 font-display text-keyword font-bold uppercase tracking-[0.02em] text-ink outline-none transition-colors duration-(--duration-swap) ease-out hover:border-line focus:border-ink-blue focus:shadow-focus"
-            title={word.label}
-            aria-label="Mot écrit sur la carte"
-          />
-        </div>
-        <select
-          value={word.category}
-          onChange={(e) => onUpdate({ category: e.target.value as CategoryCode, categoryLocked: true })}
-          aria-label={`Catégorie de ${word.label}`}
-          className="max-w-full self-start cursor-pointer truncate rounded-control border-0 py-1 pl-2.5 pr-7 text-xs font-bold"
-          style={{ background: color, color: CATEGORIES[word.category].onColor }}
-        >
-          {CATEGORY_ORDER.map((code) => (
-            <option key={code} value={code}>
-              {CATEGORIES[code].label}
-            </option>
-          ))}
-        </select>
-        {hasChoices(word) && (
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <SenseStrip word={word} onUpdate={onUpdate} onMore={onOpen} />
-            <button
-              onClick={onAddSense}
-              className="btn-quiet text-xs"
-              title="Ajouter une deuxième carte pour ce mot, avec une autre image"
-            >
-              + Autre sens
-            </button>
-          </div>
-        )}
-      </div>
-      <button
-        onClick={onRemove}
-        className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-control text-lg leading-none text-ink-soft opacity-0 transition-[opacity,background-color,color] duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink group-hover:opacity-100 focus:opacity-100"
-        aria-label={`Retirer ${word.label}`}
-        title="Retirer de la liste"
-      >
-        ×
-      </button>
-    </li>
-  );
-}
-
-export function WordBoard({ words, perPage, onUpdate, onSelectAll, onAdd, onAddSense, onRemove }: Props) {
-  const [filter, setFilter] = useState<Filter>(null);
-  const [openId, setOpenId] = useState<string | null>(null);
-  // Revue des mots à plusieurs images : la liste est figée au lancement pour pouvoir revenir en arrière.
-  const [queue, setQueue] = useState<string[] | null>(null);
-  const [newWord, setNewWord] = useState("");
-  const [addError, setAddError] = useState<string | null>(null);
-
+  const ignored = passages.filter((p) => p.ignored);
+  const reasons = [...new Set(ignored.map((p) => (p.noise ? NOISE_LABELS[p.noise] : "ignorés à la main")))];
+  const toReview = words.filter(needsReview);
   const counts = Object.fromEntries(CATEGORY_ORDER.map((c) => [c, words.filter((w) => w.category === c).length])) as Record<
     CategoryCode,
     number
   >;
-  const selected = words.filter((w) => w.selected).length;
-  const withChoices = words.filter(hasChoices).length;
-  const toReview = words.filter(needsReview);
-  const visible = filter === "choices" ? words.filter(hasChoices) : filter ? words.filter((w) => w.category === filter) : words;
-  const open = words.find((w) => w.id === openId);
-  const position = queue && openId ? queue.indexOf(openId) : -1;
-
-  function goTo(index: number) {
-    if (!queue || index < 0) return;
-    if (index >= queue.length) {
-      setQueue(null);
-      setOpenId(null);
-    } else {
-      setOpenId(queue[index]);
-    }
-  }
+  const visible = filter ? words.filter((w) => w.category === filter) : words;
+  const planche = sortWords(
+    visible.filter((w) => w.selected),
+    order,
+  );
+  const bank = visible.filter((w) => !w.selected);
+  const allCards = words.filter((w) => w.selected).length;
+  const pages = Math.max(1, Math.ceil(allCards / perPage));
 
   return (
-    <section aria-labelledby="words-title" className="sheet flex flex-col gap-4 p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section aria-labelledby="words-title" className="sheet flex flex-col gap-5 p-4 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
         <h2 id="words-title" className="font-display text-section font-bold">
-          Les mots-clés
+          Les mots
         </h2>
-        <p className="label-caps tabular-nums">
-          {selected} carte{selected > 1 ? "s" : ""} · {Math.max(1, Math.ceil(selected / perPage))} page
-          {Math.ceil(selected / perPage) > 1 ? "s" : ""}
-        </p>
-        <div className="ml-auto flex gap-2">
-          <button
-            onClick={() => onSelectAll(true, filter ? visible.map((w) => w.id) : undefined)}
-            className="btn-secondary btn-sm"
-          >
-            Tout cocher
-          </button>
-          <button
-            onClick={() => onSelectAll(false, filter ? visible.map((w) => w.id) : undefined)}
-            className="btn-secondary btn-sm"
-          >
-            Tout décocher
-          </button>
+        <div role="tablist" aria-label="Affichage des mots" className="flex gap-1 rounded-control bg-tack p-1 text-sm">
+          {(
+            [
+              ["list", "Liste", "Liste", IconCards],
+              ["text", "Dans le texte", "Texte", IconText],
+            ] as const
+          ).map(([id, label, short, Icon]) => (
+            <button
+              key={id}
+              role="tab"
+              id={`tab-${id}`}
+              aria-selected={view === id}
+              aria-controls="words-panel"
+              onClick={() => onView(id)}
+              className={`flex cursor-pointer items-center gap-2 rounded-control px-3 py-1.5 font-bold transition-[background-color,color,box-shadow] duration-(--duration-swap) ease-out ${
+                view === id ? "bg-sheet text-ink shadow-sheet" : "text-ink-soft hover:text-ink"
+              }`}
+            >
+              <Icon size={16} />
+              <span className="sm:hidden">{short}</span>
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2" role="toolbar" aria-label="Filtrer par catégorie">
-        <button
-          onClick={() => setFilter(null)}
-          aria-pressed={filter === null}
-          className={`${CHIP} border-ink ${filter === null ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"}`}
-        >
-          Tous ({words.length})
-        </button>
-        {withChoices > 0 && (
-          <button
-            onClick={() => setFilter(filter === "choices" ? null : "choices")}
-            aria-pressed={filter === "choices"}
-            className={`${CHIP} border-ink ${filter === "choices" ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"}`}
-          >
-            Plusieurs images ({withChoices})
-          </button>
-        )}
-        {CATEGORY_ORDER.map((code) => {
-          const c = CATEGORIES[code];
-          return (
-            <button
-              key={code}
-              onClick={() => setFilter(filter === code ? null : code)}
-              disabled={counts[code] === 0}
-              aria-pressed={filter === code}
-              className={`${CHIP} disabled:cursor-not-allowed disabled:opacity-35 ${filter === code ? "" : "bg-sheet text-ink hover:bg-tack"}`}
-              style={{
-                borderColor: c.color,
-                ...(filter === code ? { background: c.color, color: c.onColor } : {}),
-              }}
-            >
-              {c.label} <span className="tabular-nums opacity-75">{counts[code]}</span>
+      {ignored.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-control bg-tack/70 px-4 py-3 text-sm text-ink">
+          <IconEyeOff size={18} className="shrink-0 text-ink-soft" />
+          <p className="min-w-0 flex-1 sm:min-w-[12rem]">
+            <b>
+              {ignored.length} passage{ignored.length > 1 ? "s" : ""} ignoré{ignored.length > 1 ? "s" : ""}
+            </b>
+            <span className="hidden sm:inline">
+              {" "}
+              ({reasons.join(", ").toLocaleLowerCase("fr-FR")}) : leurs mots ne sont pas proposés.
+            </span>
+          </p>
+          {view === "list" && (
+            <button onClick={() => onView("text")} className="btn-secondary btn-sm">
+              <span>Voir<span className="hidden sm:inline"> dans le texte</span></span>
             </button>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      )}
 
       {toReview.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-control border border-attention/30 bg-attention-wash px-4 py-3 text-sm text-attention">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-control border border-attention/30 bg-attention-wash px-4 py-3 text-sm text-attention">
           <span className="h-3 w-3 shrink-0 rounded-full bg-attention" aria-hidden />
-          <p className="min-w-0 flex-1 font-bold">
-            {toReview.length} image{toReview.length > 1 ? "s" : ""} à vérifier
+          <p className="min-w-0 flex-1 sm:min-w-[12rem]">
+            <b>
+              {toReview.length} image{toReview.length > 1 ? "s" : ""} à vérifier
+            </b>
+            <span className="hidden sm:inline"> : ces mots ont plusieurs pictogrammes et le premier a été pris par défaut.</span>
           </p>
-          <button
-            onClick={() => {
-              const ids = toReview.map((w) => w.id);
-              setQueue(ids);
-              setOpenId(ids[0]);
-            }}
-            className="btn-primary btn-sm"
-          >
-            Vérifier
+          <button onClick={() => onReview(toReview.map((w) => w.id))} className="btn-primary btn-sm">
+            <span>Vérifier<span className="hidden sm:inline"> une par une</span></span>
           </button>
         </div>
       )}
 
-      <ul className="tile-enter grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2 2xl:grid-cols-3">
-        {visible.map((w, i) => (
-          <WordTile
-            key={w.id}
-            word={w}
-            index={i}
-            onUpdate={(patch) => onUpdate(w.id, patch)}
-            onOpen={() => setOpenId(w.id)}
-            onRemove={() => onRemove(w.id)}
-            onAddSense={() => {
-              // La nouvelle carte s'ouvre aussitôt pour choisir son image.
-              const id = onAddSense(w.id);
-              if (id) setOpenId(id);
-            }}
-          />
-        ))}
-      </ul>
+      <div id="words-panel" role="tabpanel" aria-labelledby={`tab-${view}`} className="flex flex-col gap-5">
+        {view === "text" ? (
+          <TextView text={text} passages={passages} words={words} onToggle={(id, selected) => onSelect([id], selected)} onPassages={onPassage} />
+        ) : (
+          <>
+            <div
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+              role="toolbar"
+              aria-label="Filtrer par couleur"
+            >
+              <button
+                onClick={() => setFilter(null)}
+                aria-pressed={filter === null}
+                className={`${CHIP} border-ink ${filter === null ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"}`}
+              >
+                <span>Toutes<span className="hidden sm:inline"> les couleurs</span></span>
+              </button>
+              {CATEGORY_ORDER.map((code) => {
+                const c = CATEGORIES[code];
+                return (
+                  <button
+                    key={code}
+                    onClick={() => setFilter(filter === code ? null : code)}
+                    disabled={counts[code] === 0}
+                    aria-pressed={filter === code}
+                    className={`${CHIP} disabled:cursor-not-allowed disabled:opacity-35 ${filter === code ? "" : "bg-sheet text-ink hover:bg-tack"}`}
+                    style={{
+                      borderColor: c.color,
+                      ...(filter === code ? { background: c.color, color: c.onColor } : {}),
+                    }}
+                  >
+                    <span className="sm:hidden">{c.short}</span>
+                    <span className="hidden sm:inline">{c.label}</span>
+                    <span className="tabular-nums opacity-75">{counts[code]}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!newWord.trim()) return;
-          const err = await onAdd(newWord);
-          setAddError(err);
-          if (!err) setNewWord("");
-        }}
-        className="flex flex-wrap items-center gap-2"
-      >
-        <label htmlFor="add-word" className="sr-only">
-          Ajouter un mot
-        </label>
-        <input
-          id="add-word"
-          value={newWord}
-          onChange={(e) => setNewWord(e.target.value)}
-          placeholder="Ajouter un mot…"
-          className="field text-sm"
-        />
-        <button className="btn-primary btn-sm">Ajouter</button>
-        {addError && <span className="text-sm text-danger">{addError}</span>}
-      </form>
+            <section aria-labelledby="planche-title" className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h3 id="planche-title" className="flex flex-wrap items-baseline gap-x-2 font-display text-keyword font-bold">
+                  Sur la planche
+                  <span className="label-caps tabular-nums">
+                    {allCards} carte{allCards > 1 ? "s" : ""} · {pages} page{pages > 1 ? "s" : ""}
+                  </span>
+                </h3>
+                {planche.length > 1 && (
+                  <button onClick={() => onSelect(planche.map((w) => w.id), false)} className="btn-quiet">
+                    {filter ? `Retirer ces ${planche.length} cartes` : "Tout retirer"}
+                  </button>
+                )}
+              </div>
+              {planche.length > 0 ? (
+                <>
+                  <p className="text-sm text-ink-soft">
+                    Dans l&apos;ordre d&apos;impression ({ORDER_LABELS[order]}).
+                    <span className="hidden sm:inline"> Cliquez sur une image pour la changer, sur le mot pour le réécrire.</span>
+                  </p>
+                  <ul className="tile-enter grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2 2xl:grid-cols-3">
+                    {planche.map((w, i) => (
+                      <WordTile
+                        key={w.id}
+                        word={w}
+                        index={i}
+                        onUpdate={(patch) => onUpdate(w.id, patch)}
+                        onOpen={() => onOpen(w.id)}
+                        onRemove={() => onRemoveCard(w.id)}
+                        onAddSense={() => onAddSense(w.id)}
+                      />
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <div className="rounded-sheet border-2 border-dashed border-line bg-tack/40 px-5 py-6 text-center">
+                  <p className="font-bold text-ink">{filter ? "Aucune carte de cette couleur sur la planche." : "La planche est vide."}</p>
+                  <p className="mt-1 text-sm text-ink-soft">
+                    Ajoutez des mots depuis la liste ci-dessous, ou choisissez-les en lisant{" "}
+                    <button onClick={() => onView("text")} className="btn-quiet">
+                      dans le texte
+                    </button>
+                    .
+                  </p>
+                </div>
+              )}
+            </section>
 
-      {open && (
-        <PictoPicker
-          word={open}
-          onChange={(patch) => onUpdate(open.id, patch)}
-          onClose={() => {
-            setOpenId(null);
-            setQueue(null);
-          }}
-          review={
-            queue && position > -1
-              ? { position, total: queue.length, onPrev: () => goTo(position - 1), onNext: () => goTo(position + 1) }
-              : undefined
-          }
-        />
-      )}
+            <WordBank words={bank} filtered={filter !== null} onPick={(id) => onSelect([id], true)} onAdd={onAdd} />
+          </>
+        )}
+      </div>
     </section>
   );
 }

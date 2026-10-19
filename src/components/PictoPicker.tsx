@@ -7,6 +7,7 @@ import { toSquarePng } from "@/lib/cards/model";
 import { choosePicto, splitOnForms } from "@/lib/senses";
 import type { WordItem } from "@/lib/types";
 import { CategoryPicker } from "./CategoryPicker";
+import { IconArrowLeft, IconArrowRight, IconClose, IconImage, IconSearch } from "./icons";
 
 /** Revue des mots à plusieurs images, un mot après l'autre. */
 interface Review {
@@ -20,6 +21,8 @@ interface Props {
   word: WordItem;
   onChange: (patch: Partial<WordItem>) => void;
   onClose: () => void;
+  /** Retire la carte de la planche (absent si le mot n'y est pas). */
+  onRemove?: () => void;
   review?: Review;
 }
 
@@ -87,7 +90,7 @@ function Thumb({
   );
 }
 
-export function PictoPicker({ word, onChange, onClose, review }: Props) {
+export function PictoPicker({ word, onChange, onClose, onRemove, review }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -102,12 +105,19 @@ export function PictoPicker({ word, onChange, onClose, review }: Props) {
       className="m-auto max-h-[92vh] w-[min(920px,94vw)] overflow-hidden rounded-sheet p-0 shadow-dialog"
     >
       {/* Remonté à chaque mot pendant la revue : recherche et minuteries repartent de zéro. */}
-      <PickerBody key={word.id} word={word} onChange={onChange} review={review} close={() => dialog.current?.close()} />
+      <PickerBody
+        key={word.id}
+        word={word}
+        onChange={onChange}
+        onRemove={onRemove}
+        review={review}
+        close={() => dialog.current?.close()}
+      />
     </dialog>
   );
 }
 
-function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & { close: () => void }) {
+function PickerBody({ word, onChange, onRemove, review, close }: Omit<Props, "onClose"> & { close: () => void }) {
   const [query, setQuery] = useState(word.lemma);
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -192,7 +202,7 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
       {review && (
         <div className="flex flex-wrap items-center gap-3 border-b border-attention/30 bg-attention-wash px-6 py-2.5 text-sm text-attention">
           <span className="font-bold tabular-nums">
-            {review.position + 1} / {review.total}
+            Vérification {review.position + 1} sur {review.total}
           </span>
           <span
             className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-full bg-attention/20"
@@ -211,12 +221,13 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             onClick={review.onPrev}
             disabled={review.position === 0}
             className="btn-secondary btn-sm border-attention text-attention hover:bg-sheet"
-            aria-label="Précédent"
+            aria-label="Mot précédent"
           >
-            ←
+            <IconArrowLeft size={18} />
           </button>
-          <button onClick={keepAndNext} className="btn-primary btn-sm">
-            {review.position + 1 === review.total ? "Terminer" : "Suivant →"}
+          <button onClick={keepAndNext} className="btn-primary btn-sm" title="Touche →">
+            {review.position + 1 === review.total ? "Garder et terminer" : "Garder cette image"}
+            {review.position + 1 < review.total && <IconArrowRight size={18} />}
           </button>
         </div>
       )}
@@ -225,6 +236,7 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
           <h3 className="font-display text-section font-bold tracking-[0.02em]">{word.label.toLocaleUpperCase("fr-FR")}</h3>
           {word.example && (
             <p className="mt-1 line-clamp-2 text-sm text-ink-soft">
+              <span className="sr-only">Dans le texte : </span>
               «{" "}
               {splitOnForms(word.example, [word.lemma, ...word.forms]).map(([part, isWord], i) =>
                 isWord ? (
@@ -241,47 +253,56 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
         </div>
         <button
           onClick={close}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-2xl leading-none text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
           aria-label="Fermer"
         >
-          ×
+          <IconClose size={22} />
         </button>
       </header>
 
       <div className="flex flex-col gap-6 overflow-y-auto px-6 py-5">
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-          <label className="flex flex-col text-sm">
-            <span className="sr-only">Mot écrit sur la carte</span>
+        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="label-caps">Mot imprimé sur la carte</span>
             <input
               value={word.label}
               onChange={(e) => onChange({ label: e.target.value })}
               className="field font-display font-bold uppercase"
             />
           </label>
-          <div className="flex items-center text-sm">
+          <div className="flex flex-col gap-1.5 text-sm">
+            <span className="label-caps" id="picker-category">
+              Couleur de la bordure
+            </span>
             <CategoryPicker
               value={word.category}
-              label="Catégorie du mot"
+              label="Couleur de la bordure (nature du mot)"
               size="md"
               onChange={(category) => onChange({ category, categoryLocked: true })}
             />
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm text-ink">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink">
           <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={word.plural} onChange={(e) => onChange({ plural: e.target.checked })} />
-            Pluriel
+            Image au pluriel
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={word.noColor} onChange={(e) => onChange({ noColor: e.target.checked })} />
-            Noir et blanc
+            Image en noir et blanc
           </label>
         </div>
 
         {word.candidates.length > 0 && (
           // Pendant la revue, choisir l'image est la tâche principale : les propositions passent en tête.
-          <section className={review ? "order-first" : undefined}>
+          <section aria-labelledby="picker-candidates" className={`flex flex-col gap-3 ${review ? "order-first" : ""}`}>
+            <h4 id="picker-candidates" className="flex flex-wrap items-baseline gap-x-3 font-bold">
+              Images proposées pour ce mot
+              {word.candidates.length > 1 && (
+                <span className="text-sm font-normal text-ink-soft">touches 1 à {Math.min(9, word.candidates.length)}</span>
+              )}
+            </h4>
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6">
               {word.candidates.map(([id, cat], i) => (
                 <Thumb
@@ -300,32 +321,46 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
           </section>
         )}
 
-        <section>
+        <section aria-labelledby="picker-search-title" className="flex flex-col gap-3">
+          <h4 id="picker-search-title" className="font-bold">
+            {word.candidates.length ? "Chercher une autre image dans ARASAAC" : "Chercher une image dans ARASAAC"}
+          </h4>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               search(query);
             }}
-            className="mb-3 flex gap-2"
+            className="flex gap-2"
           >
             <label htmlFor="picto-search" className="sr-only">
-              Chercher un autre pictogramme
+              Mot à chercher dans ARASAAC
             </label>
             <input
               id="picto-search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Chercher…"
+              placeholder="Un autre mot, un synonyme…"
               className="field min-w-0 flex-1 text-sm"
             />
             <button className="btn-primary">
+              <IconSearch size={18} />
               Chercher
             </button>
           </form>
-          {searching && <p className="text-sm text-ink-soft">Recherche…</p>}
-          {error && <p className="text-sm text-danger">{error}</p>}
+          {searching && (
+            <p role="status" className="text-sm text-ink-soft">
+              Recherche dans ARASAAC…
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-danger">
+              {error} Vérifiez la connexion, puis réessayez.
+            </p>
+          )}
           {results && !searching && extra.length === 0 && (
-            <p className="text-sm text-ink-soft">Aucun résultat.</p>
+            <p className="text-sm text-ink-soft">
+              {results.length ? "Pas d'autre image que celles proposées ci-dessus." : `Aucune image pour « ${query} ». Essayez un synonyme.`}
+            </p>
           )}
           {extra.length > 0 && (
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6">
@@ -347,9 +382,10 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
           )}
         </section>
 
-        <section className="flex flex-wrap items-center gap-4 border-t border-rule pt-4 text-sm">
+        <section aria-label="Autres choix" className="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-rule pt-4 text-sm">
           <button onClick={() => fileInput.current?.click()} className="btn-secondary btn-sm">
-            Mon image…
+            <IconImage size={18} />
+            Utiliser ma propre image
           </button>
           <input
             ref={fileInput}
@@ -371,8 +407,20 @@ function PickerBody({ word, onChange, review, close }: Omit<Props, "onClose"> & 
             onClick={() => onChange({ pictoId: null, pictoChosen: true, customImage: undefined })}
             className="btn-quiet"
           >
-            Sans image
+            Carte sans image
           </button>
+          <span className="ml-auto flex flex-wrap items-center gap-3">
+            {onRemove && (
+              <button onClick={onRemove} className="btn-quiet text-danger hover:text-danger">
+                Retirer de la planche
+              </button>
+            )}
+            {!review && (
+              <button onClick={close} className="btn-primary btn-sm">
+                Terminé
+              </button>
+            )}
+          </span>
         </section>
       </div>
     </div>
