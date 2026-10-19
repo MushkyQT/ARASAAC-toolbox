@@ -14,6 +14,9 @@ importers:
       '@pdf-lib/fontkit':
         specifier: ^1.1.1
         version: 1.1.1
+      an-array-of-french-words:
+        specifier: 2.0.0
+        version: 2.0.0
       fr-compromise:
         specifier: ^0.3.1
         version: 0.3.1
@@ -1106,6 +1109,10 @@ packages:
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
+
+  an-array-of-french-words@2.0.0:
+    resolution: {integrity: sha512-LRPhVZLteE0wrUFimKWcrEtXZcv8XiG9TArm37j7/PdO2G5f6UfgCny+ibH8CascxMXFMzTPlJcP01PgSmei8Q==}
+    hasBin: true
 
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
@@ -3640,6 +3647,8 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  an-array-of-french-words@2.0.0: {}
 
   ansi-styles@4.3.0:
     dependencies:

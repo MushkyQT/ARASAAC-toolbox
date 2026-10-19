@@ -9,6 +9,8 @@ export interface IngestResult {
 export type Progress = (message: string, ratio?: number) => void;
 
 const MAX_OCR_PAGES = 30;
+/** En dessous de ce nombre de mots lus, une page est relue après mise en valeur du texte. */
+const RETRY_BELOW_WORDS = 15;
 
 /** Recolle les mots coupés en fin de ligne et nettoie les espaces d'un texte extrait. */
 export function cleanExtractedText(raw: string): string {
@@ -63,7 +65,9 @@ async function readOdt(file: File): Promise<IngestResult> {
 }
 
 async function recognize(images: (string | File)[], onProgress: Progress): Promise<string> {
-  const { createWorker } = await import("tesseract.js");
+  const [{ createWorker }, ocr] = await Promise.all([import("tesseract.js"), import("./ocr")]);
+  // Le dictionnaire n'améliore que l'orthographe : sans lui, on garde le texte brut.
+  const words = ocr.loadDictionary().catch(() => null);
   let current = 0;
   const worker = await createWorker("fra", 1, {
     logger: (m: { status: string; progress: number }) => {
@@ -75,12 +79,23 @@ async function recognize(images: (string | File)[], onProgress: Progress): Promi
     },
   });
   try {
+    const dict = await words;
+    const isWord = dict ? (w: string) => dict.has(w) : () => true;
+    const read = async (image: string | Blob) => {
+      const { data } = await worker.recognize(image, {}, { blocks: true });
+      return ocr.correctOcrText(ocr.ocrPageText(data.blocks), isWord);
+    };
     const out: string[] = [];
     for (; current < images.length; current++) {
-      const { data } = await worker.recognize(images[current]);
-      out.push(data.text);
+      let text = await read(images[current]);
+      // Page presque vide : souvent du texte foncé sur un fond coloré, qu'on relit sur la luminosité seule.
+      if (ocr.knownWordCount(text, isWord) < RETRY_BELOW_WORDS) {
+        const retry = await read(await ocr.valueChannel(images[current]));
+        if (ocr.knownWordCount(retry, isWord) > ocr.knownWordCount(text, isWord)) text = retry;
+      }
+      out.push(text);
     }
-    return cleanExtractedText(out.join("\n\n"));
+    return cleanExtractedText(out.filter(Boolean).join("\n\n"));
   } finally {
     await worker.terminate();
   }
