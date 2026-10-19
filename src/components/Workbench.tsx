@@ -7,7 +7,7 @@ import { FONTS, fontUrl, toCardSpecs } from "@/lib/cards/model";
 import { useFontMeasure } from "@/lib/cards/useMeasure";
 import { lemmaCandidates, loadLexicon } from "@/lib/nlp/lexicon";
 import { findPassages } from "@/lib/nlp/passages";
-import { needsReview, senseCopy } from "@/lib/senses";
+import { senseCopy } from "@/lib/senses";
 import {
   applyBank,
   clearProject,
@@ -26,7 +26,6 @@ import { PictoPicker } from "./PictoPicker";
 import { SheetPreview } from "./SheetPreview";
 import { SourcePanel } from "./SourcePanel";
 import { SourceSummary } from "./SourceSummary";
-import { Stepper, type StepState } from "./Stepper";
 import { Toast, type ToastMessage } from "./Toast";
 import { WordBoard, type BoardView } from "./WordBoard";
 
@@ -309,7 +308,6 @@ export function Workbench() {
   const measure = useFontMeasure(fontFamily, fontUrl(project.settings), project.settings.bold);
   const perPage = pageGrid(project.settings.sizeMm).perPage;
   const pages = Math.ceil(cards.length / perPage);
-  const toReview = words.filter(needsReview);
 
   const open = words.find((w) => w.id === openId);
   const position = queue && openId ? queue.indexOf(openId) : -1;
@@ -323,38 +321,10 @@ export function Workbench() {
     }
   }
 
-  const steps: StepState[] = [
-    {
-      href: "#texte",
-      title: "Le texte",
-      short: "Texte",
-      detail: project.text.trim() ? `${countWords(project.text).toLocaleString("fr-FR")} mots` : "À coller ou importer",
-      status: words.length ? "done" : "current",
-    },
-    {
-      href: "#mots",
-      title: "Les mots",
-      short: "Mots",
-      detail: !words.length
-        ? "Choisir les cartes"
-        : `${cards.length} carte${cards.length > 1 ? "s" : ""}${toReview.length ? ` · ${toReview.length} à vérifier` : ""}`,
-      status: !words.length ? "todo" : cards.length && !toReview.length ? "done" : "current",
-    },
-    {
-      href: "#impression",
-      title: "L'impression",
-      short: "Impression",
-      detail: cards.length ? `${pages} page${pages > 1 ? "s" : ""} A4` : "PDF, Canva, images",
-      status: cards.length && !toReview.length ? "current" : "todo",
-    },
-  ];
-
   return (
     <>
-      <Stepper steps={steps} />
-
-      <div className="flex flex-col gap-8 pt-6">
-        <section id="texte" aria-label="Le texte" className="scroll-mt-28">
+      <div className="flex flex-col gap-8">
+        <section id="texte" aria-label="Le texte" className="scroll-mt-6">
           {editingSource || words.length === 0 ? (
             <div className="sheet p-4 sm:p-6">
               <SourcePanel
@@ -384,7 +354,7 @@ export function Workbench() {
 
         {words.length > 0 && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(340px,420px)]">
-            <div ref={wordsRef} id="mots" className="scroll-mt-28">
+            <div ref={wordsRef} id="mots" className="scroll-mt-6">
               <WordBoard
                 words={words}
                 text={text}
@@ -412,7 +382,7 @@ export function Workbench() {
             <aside
               id="impression"
               aria-label="L'impression"
-              className="flex scroll-mt-28 flex-col gap-4 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:px-1 lg:pb-4 lg:pt-2"
+              className="flex scroll-mt-6 flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-2.5rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:px-1 lg:pb-4 lg:pt-2"
             >
               <div className="sheet p-4 sm:p-6">
                 <ExportPanel

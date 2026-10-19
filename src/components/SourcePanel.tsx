@@ -126,9 +126,6 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
           <IconLink size={18} />
           Depuis une page web
         </button>
-        <p className="basis-full text-sm text-ink-soft sm:basis-auto sm:self-center">
-          PDF, Word, OpenDocument, texte, ou photo d&apos;une page (lue automatiquement). Vous pouvez aussi déposer le fichier ici.
-        </p>
       </div>
 
       {linkOpen && (
@@ -200,9 +197,8 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
           placeholder="Il était une fois…"
           className="field w-full resize-y px-4 py-3 leading-relaxed"
         />
-        <p className="text-sm text-ink-soft">
-          <span className="tabular-nums">{words.toLocaleString("fr-FR")} mot{words > 1 ? "s" : ""}</span>
-          {" · "}Les mentions légales, crédits, liens et menus de site sont repérés et laissés de côté ; vous pourrez les réintégrer.
+        <p className="text-sm text-ink-soft tabular-nums">
+          {words.toLocaleString("fr-FR")} mot{words > 1 ? "s" : ""}
         </p>
       </div>
 
