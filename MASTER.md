@@ -160,6 +160,24 @@ than a real loading state, any animated `width`/`height`/`top`/`left`.
   or solid 3px in its category colour on an `ink-blue-wash` ground (on the board). Ignored text is
   `ink-soft` on a `tack` wash, struck through; a fully ignored paragraph is a dashed `line` block;
   three or more in a row fold into one block with "Afficher" and "Tout inclure".
+- **Word peek** (`.tv-peek`, text view): the hovered (or keyboard-focused) keyword's mini card,
+  64px, 3px category border, `shadow-lift`, the word's `--tilt`, 6px above the word (below it when
+  the word touches the top of the screen), never catching the pointer. Opens after 250ms with a
+  160ms fade and 4px settle, then follows the pointer from word to word with a 120ms glide and the
+  picto crossfade; stays 120ms while crossing the gap between two words, closes with a 120ms fade,
+  Escape closes it. A word with several possible pictograms (whatever its board state: no
+  attention dot here, the dot stays the board's "unverified" mark) shows a second card fanned out
+  behind (+5px, −4px, +4°), its border the category colour mixed 50% with `sheet`; it spreads out
+  in 160ms as the peek opens and tucks back under a word with a single picto. Such a card grows a
+  row of 5px dots under the picto (one per picture, at most 5 like the tile strip; `ink-blue` =
+  the picture shown, the first is the card's own), anchored by its bottom so it grows upward. If the
+  pointer stays 1s after the peek opens, the other pictures are shown once, 1.2s each with the
+  120ms picto crossfade (border in that picto's category colour unless locked), then the peek
+  returns to the card's picture and stops: one pass per hover, never a loop. Keyboard: ↑/↓ step
+  through the pictures by hand, no auto pass. No browser `title`
+  on keywords (it would double the peek); the hint is in `aria-description`. Touch: no peek.
+  Reduced motion: fade only, no glide, no tilt (the back card keeps its offset, unrotated), no
+  auto pass (↑/↓ still work).
 - **Disclosure** (export panel): 1px `rule` box, `radius-control`; the summary line states the
   current values (« 8 cm · Open Sans · bordure 2 mm ») so nothing hides what will be printed.
 - **Undo toast** (`Toast`): `ink` fill, `sheet` text, `shadow-dialog`, bottom centre, 10s, always

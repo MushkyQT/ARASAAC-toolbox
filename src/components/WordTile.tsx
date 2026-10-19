@@ -9,7 +9,7 @@ import { IconClose, IconImage, IconPlus } from "./icons";
 import { SenseStrip } from "./SenseStrip";
 
 /** Inclinaison de la mini-carte (±0,6°), stable pour un même mot : posée à la main, pas au hasard à chaque rendu. */
-function tiltOf(id: string) {
+export function tiltOf(id: string) {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
   return ((Math.abs(h) % 13) - 6) / 10;

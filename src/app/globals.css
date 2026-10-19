@@ -447,6 +447,95 @@ body {
     }
   }
 
+  /* Aperçu de l'image d'un mot survolé : sa mini-carte se pose au-dessus du mot, puis glisse de mot en mot. */
+  .tv-peek {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    pointer-events: none;
+    visibility: hidden;
+    transition: visibility 0s linear var(--duration-swap);
+  }
+  .tv-peek[data-open] {
+    visibility: visible;
+    transition: none;
+  }
+  .tv-peek[data-glide] {
+    transition: transform var(--duration-swap) var(--ease-out);
+  }
+  /* Attachée par son bas au-dessus du mot (par son haut en dessous) : les points des autres images la grandissent vers le haut. */
+  .tv-peek-stack {
+    --peek-from: 4px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 64px;
+    opacity: 0;
+    transform: translateY(var(--peek-from)) rotate(var(--tilt, 0deg));
+    transition:
+      opacity var(--duration-swap) var(--ease-out),
+      transform var(--duration-swap) var(--ease-out);
+  }
+  .tv-peek[data-below] .tv-peek-stack {
+    --peek-from: -4px;
+    top: 0;
+    bottom: auto;
+  }
+  .tv-peek[data-open] .tv-peek-stack {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+    transition-duration: var(--duration-hover);
+  }
+  .tv-peek-card,
+  .tv-peek-back {
+    border: 3px solid var(--cat);
+    border-radius: var(--radius-sheet);
+    background: var(--color-sheet);
+    transition:
+      border-color var(--duration-swap) var(--ease-out),
+      transform var(--duration-hover) var(--ease-out);
+  }
+  .tv-peek-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+    box-shadow: var(--shadow-lift);
+  }
+  .tv-peek-pic {
+    height: 50px;
+  }
+  /* Position dans le tour des images : le point plein est l'image montrée, le premier celui de la carte. */
+  .tv-peek-pips {
+    display: flex;
+    height: 5px;
+    justify-content: center;
+    gap: 3px;
+  }
+  .tv-peek-pips > span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgb(135 124 106 / 0.4);
+    transition: background-color var(--duration-swap) var(--ease-out);
+  }
+  .tv-peek-pips > [data-on] {
+    background: var(--color-ink-blue);
+  }
+  /* Plusieurs pictogrammes possibles : une deuxième carte, plus pâle, dépasse en éventail derrière la première.
+     Rangée exactement sous la carte sinon, elle sort à l'ouverture et rentre quand le mot n'en a qu'un. */
+  .tv-peek-back {
+    position: absolute;
+    inset: 0;
+    border-color: color-mix(in srgb, var(--cat) 50%, var(--color-sheet));
+    box-shadow: var(--shadow-sheet);
+  }
+  .tv-peek[data-open][data-stack] .tv-peek-back {
+    transform: translate(5px, -4px) rotate(4deg);
+  }
+
   /* Carte de l'aperçu : cliquable pour la modifier. */
   .preview-card {
     border-radius: 1px;
@@ -558,6 +647,19 @@ dialog::backdrop {
   }
   .bank-chip:active {
     transform: none;
+  }
+  .tv-peek[data-glide] {
+    transition: none;
+  }
+  .tv-peek-stack,
+  .tv-peek[data-open] .tv-peek-stack {
+    transform: none;
+  }
+  .tv-peek-back {
+    transition: border-color var(--duration-swap) var(--ease-out);
+  }
+  .tv-peek[data-open][data-stack] .tv-peek-back {
+    transform: translate(5px, -4px);
   }
   .toast {
     animation: fade var(--duration-enter) linear both;
