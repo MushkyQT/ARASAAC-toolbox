@@ -23,20 +23,26 @@ export function scoreAndSelect(items: WordItem[], limit: number): WordItem[] {
     // Ce qui est posé au début d'un récit (personnages, lieu, moment) compte davantage.
     if (w.firstIndex / lastIndex < 0.2) score += 0.75;
     if (w.pictoId === null) score -= 1.5;
-    if (GENERIC_LEMMAS.has(w.lemma)) score -= 4;
+    // Passe-partout : en bas de la liste, même s'ils reviennent souvent.
+    if (GENERIC_LEMMAS.has(w.lemma)) score -= 8;
     w.score = Math.round(score * 100) / 100;
   }
 
   const ranked = [...items].sort((a, b) => b.score - a.score || a.firstIndex - b.firstIndex);
+  // Jamais présélectionnés : les verbes passe-partout (« faire », « voir »), et les mots inconnus
+  // d'ARASAAC qui ne sont pas des personnages (leur carte serait sans image).
+  const preselectable = (w: WordItem) => !GENERIC_LEMMAS.has(w.lemma) && (w.pictoId !== null || w.proper);
   const chosen = new Set<string>();
   const present = new Set(items.map((w) => w.category));
   for (const cat of present) {
-    const best = ranked.find((w) => w.category === cat && !GENERIC_LEMMAS.has(w.lemma));
+    const best =
+      ranked.find((w) => w.category === cat && preselectable(w)) ??
+      ranked.find((w) => w.category === cat && !GENERIC_LEMMAS.has(w.lemma));
     if (best && chosen.size < limit) chosen.add(best.id);
   }
   for (const w of ranked) {
     if (chosen.size >= limit) break;
-    chosen.add(w.id);
+    if (preselectable(w)) chosen.add(w.id);
   }
   for (const w of items) w.selected = chosen.has(w.id);
   return items.sort((a, b) => a.firstIndex - b.firstIndex);

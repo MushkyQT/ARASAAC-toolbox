@@ -29,6 +29,10 @@ export interface WordItem {
   count: number;
   /** Ordre d'apparition (index du premier jeton). */
   firstIndex: number;
+  /** Positions [début, fin[ de chaque occurrence dans le texte (normalisé NFC), pour la vue « Dans le texte ». */
+  spans?: [number, number][];
+  /** Mot ajouté à la main (absent du texte) : gardé quand le texte est analysé à nouveau. */
+  manual?: boolean;
   /** Phrase d'exemple. */
   example: string;
   /** Mot présent dans le lexique ARASAAC. */

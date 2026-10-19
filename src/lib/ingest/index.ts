@@ -119,5 +119,5 @@ export async function readUrl(url: string): Promise<UrlResult> {
   });
   const data = (await res.json()) as { text?: string; title?: string; error?: string; kind?: string };
   if (!res.ok || !data.text) throw new Error(data.error ?? "Impossible de lire cette page.");
-  return { text: data.text, title: data.title };
+  return { text: cleanExtractedText(data.text), title: data.title };
 }

@@ -1,5 +1,5 @@
 import type { CategoryCode } from "@/lib/categories";
-import { tokenize, type Token } from "@/lib/text";
+import { canonicalText, SEPARATORS, tokenize, type LineBreaks, type Token } from "@/lib/text";
 import type { WordItem } from "@/lib/types";
 import { lemmaCandidates, type Lexicon } from "./lexicon";
 import { ALIASES, AVOIR_FORMS, DETERMINERS, ENCLITICS, EXCLUDED_LEMMAS, SUBJECT_PRONOUNS } from "./stopwords";
@@ -12,6 +12,8 @@ export interface AnalyzeOptions {
   /** Nombre de cartes présélectionnées. */
   preselect?: number;
   guess?: Guesser;
+  /** Rôle des retours à la ligne (deviné d'après le texte s'il n'est pas donné). */
+  lineBreaks?: LineBreaks;
 }
 
 const MAX_PHRASE = 6;
@@ -109,7 +111,7 @@ function isSentenceStart(tokens: Token[], i: number) {
     const t = tokens[k];
     if (t.sentence !== tokens[i].sentence) return true;
     if (!t.punct) return false;
-    if (t.key === ":" || t.key === "«" || t.key === '"') return true;
+    if (t.key === ":" || t.key === "«" || t.key === '"' || SEPARATORS.has(t.key)) return true;
   }
   return true;
 }
@@ -157,9 +159,22 @@ function matchTokens(lex: Lexicon, tokens: Token[], guess?: Guesser): Hit[] {
       i++;
       continue;
     }
+    // « elle n'aurait point d'esprit » : négation, pas le signe de ponctuation.
+    if (key === "point" && tokens.slice(Math.max(0, i - 4), i).some((t) => t.sentence === tok.sentence && (t.key === "ne" || t.key === "n'"))) {
+      i++;
+      continue;
+    }
     const all = lemmaCandidates(lex, key);
-    // Un mot outil connu (« mais », « dans ») ne doit pas devenir « mai » par le singulier.
-    const cands = all.length ? all.filter((l) => lex.entries[l].t !== 6) : singularCandidates(lex, key);
+    // Un mot outil connu (« mais », « dans ») ne doit pas devenir « mai » par le singulier ; un mot
+    // classé « divers » par ARASAAC qui n'est pas un mot outil (« temps ») reste une carte possible.
+    let cands = all.length ? all.filter((l) => lex.entries[l].t !== 6) : singularCandidates(lex, key);
+    if (!cands.length && all.length) {
+      if (EXCLUDED_LEMMAS.has(key)) {
+        i++;
+        continue;
+      }
+      cands = all;
+    }
     if (cands.length) {
       const lemma = chooseLemma(lex, key, cands, contextPos(tokens, i));
       hits.push({ lemma, start: i, end: i + 1, surface: tok.surface, sentence: tok.sentence });
@@ -171,7 +186,13 @@ function matchTokens(lex: Lexicon, tokens: Token[], guess?: Guesser): Hit[] {
     if (key.includes("-")) {
       const parts = tok.surface.split("-").filter(Boolean);
       if (parts.length > 1) {
-        const sub: Token[] = parts.map((p) => ({ ...tok, surface: p, key: p.toLocaleLowerCase("fr-FR") }));
+        let at = tok.start;
+        const sub: Token[] = parts.map((p) => {
+          at = tok.start + tok.surface.indexOf(p, at - tok.start);
+          const t = { ...tok, surface: p, key: p.toLocaleLowerCase("fr-FR"), start: at };
+          at += p.length;
+          return t;
+        });
         if (ENCLITICS.has(sub[sub.length - 1].key)) sub[0].hint = "verb";
         tokens.splice(i, 1, ...sub);
         continue;
@@ -194,7 +215,9 @@ function matchTokens(lex: Lexicon, tokens: Token[], guess?: Guesser): Hit[] {
           hits.push({ lemma: known[0], start: i, end: i + 1, surface: tok.surface, sentence: tok.sentence });
         } else {
           const guessedCategory: CategoryCode = g.pos === "verb" ? "V" : g.pos === "adjective" ? "A" : "N";
-          hits.push({ lemma: null, start: i, end: i + 1, surface: lemma, sentence: tok.sentence, guessedCategory });
+          // Nom ou adjectif inconnu : on garde le mot du texte, la racine devinée est souvent tronquée (« néanmoin »).
+          const surface = g.pos === "verb" ? lemma : tok.surface.toLocaleLowerCase("fr-FR");
+          hits.push({ lemma: null, start: i, end: i + 1, surface, sentence: tok.sentence, guessedCategory });
         }
       }
     }
@@ -208,7 +231,7 @@ function matchTokens(lex: Lexicon, tokens: Token[], guess?: Guesser): Hit[] {
  * Entièrement hors-ligne : lexique ARASAAC + conjugaisons Lefff + règles de contexte.
  */
 export function analyzeText(text: string, lex: Lexicon, options: AnalyzeOptions = {}): WordItem[] {
-  const tokens = tokenize(text);
+  const tokens = tokenize(text, options.lineBreaks);
   const hits = matchTokens(lex, tokens, options.guess);
   const sentences = new Map<number, string>();
   for (const t of tokens) {
@@ -220,8 +243,7 @@ export function analyzeText(text: string, lex: Lexicon, options: AnalyzeOptions 
     const s = tokens.filter((t) => t.sentence === n);
     const from = s[0]?.start ?? 0;
     const last = s[s.length - 1];
-    const str = text
-      .normalize("NFC")
+    const str = canonicalText(text)
       .slice(from, last ? last.start + last.surface.length + 1 : from)
       .replace(/\s+/g, " ")
       .trim();
@@ -233,9 +255,12 @@ export function analyzeText(text: string, lex: Lexicon, options: AnalyzeOptions 
   for (const h of hits) {
     const lemma = h.lemma ?? h.surface.toLocaleLowerCase("fr-FR");
     if (EXCLUDED_LEMMAS.has(lemma)) continue;
+    const last = tokens[h.end - 1];
+    const span: [number, number] = [tokens[h.start].start, last.start + last.surface.length];
     const existing = items.get(lemma);
     if (existing) {
       existing.count++;
+      existing.spans?.push(span);
       if (!existing.forms.includes(h.surface)) existing.forms.push(h.surface);
       continue;
     }
@@ -255,6 +280,7 @@ export function analyzeText(text: string, lex: Lexicon, options: AnalyzeOptions 
       forms: [h.surface],
       count: 1,
       firstIndex: h.start,
+      spans: [span],
       example: sentenceText(h.sentence),
       known: Boolean(entry),
       proper: Boolean(h.proper),

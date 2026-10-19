@@ -40,6 +40,10 @@ export const EXCLUDED_LEMMAS = new Set(
       "pourquoi",
       "combien",
       "t",
+      // Pronoms possessifs, intensifs et mots de liaison : jamais une carte utile.
+      ..."tel telle tels telles dès auprès néanmoins cependant pourtant toutefois autrui quelqu'un".split(" "),
+      ..."mien mienne miens miennes tien tienne tiens tiennes sien sienne siens siennes nôtre nôtres vôtre vôtres".split(" "),
+      ..."moi-même toi-même lui-même elle-même soi-même nous-mêmes vous-même vous-mêmes eux-mêmes elles-mêmes".split(" "),
     ]),
 );
 
@@ -65,6 +69,14 @@ export const GENERIC_LEMMAS = new Set([
   "trouver",
   "donner",
   "laisser",
+  "voir",
+  "rendre",
+  "tenir",
+  "sembler",
+  "paraître",
+  "devenir",
+  "reprendre",
+  "croire",
   "petit",
   "grand",
   "autre",

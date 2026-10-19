@@ -8,11 +8,13 @@ export interface Project {
   text: string;
   words: WordItem[];
   settings: CardSettings;
+  /** Passages que l'utilisateur a lui-même inclus (true) ou ignorés (false), par texte normalisé. */
+  passages?: Record<string, boolean>;
   updatedAt: number;
 }
 
 export function emptyProject(settings: CardSettings = DEFAULT_SETTINGS): Project {
-  return { title: "", text: "", words: [], settings, updatedAt: 0 };
+  return { title: "", text: "", words: [], settings, passages: {}, updatedAt: 0 };
 }
 
 /** Ce qui est mémorisé pour un mot d'un texte à l'autre (« loup » → toujours ce pictogramme-là). */
