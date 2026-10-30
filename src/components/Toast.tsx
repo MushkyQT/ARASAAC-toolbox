@@ -38,13 +38,13 @@ export function Toast({
       {message && (
         <div
           key={message.id}
-          className="toast pointer-events-auto flex max-w-md items-center gap-1 rounded-sheet border border-rule bg-sheet py-1 pl-3.5 pr-1 text-sm text-ink shadow-lift"
+          className="toast pointer-events-auto flex max-w-md items-center gap-1 rounded-card border border-rule bg-sheet py-1 pl-3.5 pr-1 text-sm text-ink shadow-lift"
         >
           <p className="min-w-0 flex-1 py-1 pr-2">{message.text}</p>
           {message.undo && (
             <button
               onClick={() => onUndo(message.undo!)}
-              className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-control px-2.5 font-bold text-ink-blue transition-colors duration-(--duration-swap) ease-out hover:bg-ink-blue-wash hover:text-ink-blue-press"
+              className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-control px-2.5 font-bold text-ink transition-colors duration-(--duration-swap) ease-out hover:bg-wash hover:text-ink-press"
             >
               <IconUndo size={16} />
               Annuler
@@ -53,7 +53,7 @@ export function Toast({
           <button
             onClick={onDismiss}
             aria-label="Fermer le message"
-            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-wash hover:text-ink"
           >
             <IconClose size={14} />
           </button>

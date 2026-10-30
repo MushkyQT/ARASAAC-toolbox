@@ -135,7 +135,7 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
             e.preventDefault();
             importUrl();
           }}
-          className="flex flex-col gap-2 rounded-control bg-tack/60 p-3 sm:p-4"
+          className="flex flex-col gap-2 rounded-control bg-wash/60 p-3 sm:p-4"
         >
           <label htmlFor="url" className="label-caps">
             Adresse de la page
@@ -162,12 +162,12 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
       )}
 
       {busy && (
-        <div role="status" className="flex flex-col gap-2 rounded-control bg-tack px-4 py-3 text-sm text-ink">
+        <div role="status" className="flex flex-col gap-2 rounded-control bg-wash px-4 py-3 text-sm text-ink">
           <span>{busy}</span>
           {ratio !== undefined && (
             <div className="h-1.5 overflow-hidden rounded-full bg-rule">
               <div
-                className="h-full origin-left bg-ink-blue transition-transform duration-(--duration-swap) ease-out"
+                className="h-full origin-left bg-ink transition-transform duration-(--duration-swap) ease-out"
                 style={{ transform: `scaleX(${ratio})` }}
               />
             </div>
@@ -197,7 +197,7 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
           placeholder="Il était une fois…"
           className="field w-full resize-y px-4 py-3 leading-relaxed"
         />
-        <p className="text-sm text-ink-soft tabular-nums">
+        <p className="measure text-ink-soft">
           {words.toLocaleString("fr-FR")} mot{words > 1 ? "s" : ""}
         </p>
       </div>
@@ -220,9 +220,9 @@ export function SourcePanel({ text, onText, onAnalyze, analyzing, reanalyze, onC
       {dragging && (
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-2 flex items-center justify-center rounded-sheet border-2 border-dashed border-ink-blue bg-ink-blue-wash/90 sm:-inset-3"
+          className="pointer-events-none absolute -inset-2 flex items-center justify-center rounded-sheet border-2 border-dashed border-ink bg-wash/90 sm:-inset-3"
         >
-          <p className="font-display text-section font-bold text-ink-blue">Déposez le fichier pour l&apos;importer</p>
+          <p className="font-display text-section font-bold text-ink">Déposez le fichier pour l&apos;importer</p>
         </div>
       )}
     </div>

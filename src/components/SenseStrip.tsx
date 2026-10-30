@@ -60,8 +60,8 @@ export function SenseStrip({ word, onUpdate, onMore }: Props) {
               onKeyDown={(e) => onKeyDown(e, i)}
               onMouseEnter={() => loadKeywords(id)}
               onFocus={() => loadKeywords(id)}
-              className={`h-9 w-9 cursor-pointer rounded-sheet border bg-sheet p-0.5 transition-[border-color,box-shadow,background-color] duration-(--duration-swap) ease-out ${
-                active ? "border-ink-blue bg-ink-blue-wash ring-2 ring-ink-blue" : "border-rule hover:border-ink"
+              className={`h-9 w-9 cursor-pointer rounded-card border bg-sheet p-0.5 transition-[border-color,box-shadow,background-color] duration-(--duration-swap) ease-out ${
+                active ? "border-ink bg-wash ring-2 ring-ink" : "border-rule hover:border-ink"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +78,7 @@ export function SenseStrip({ word, onUpdate, onMore }: Props) {
       {hidden > 0 && (
         <button
           onClick={onMore}
-          className="h-9 cursor-pointer rounded-sheet border border-dashed border-line px-2 text-xs font-bold text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+          className="h-9 cursor-pointer rounded-card border border-dashed border-line px-2 text-xs font-bold text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-wash hover:text-ink"
           aria-label={`Voir les ${total} images de ${word.label}`}
         >
           +{hidden}

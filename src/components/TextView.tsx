@@ -8,7 +8,7 @@ import { hasChoices, visibleChoices } from "@/lib/senses";
 import { lineBreakMode } from "@/lib/text";
 import type { WordItem } from "@/lib/types";
 import { IconEye, IconEyeOff, IconImage } from "./icons";
-import { tiltOf, wordImage } from "./WordTile";
+import { wordImage } from "./WordTile";
 
 interface Props {
   /** Texte de référence (`canonicalText`) : les positions des mots et des passages s'y rapportent. */
@@ -121,7 +121,7 @@ function PeekCard({ word, peek }: { word: WordItem; peek: Peek }) {
       data-stack={frames.length > 1 || undefined}
       style={{ transform: `translate(${peek.x}px, ${peek.y}px)` }}
     >
-      <div className="tv-peek-stack" style={{ "--cat": CATEGORIES[frame.category].color, "--tilt": `${tiltOf(word.id)}deg` } as CSSProperties}>
+      <div className="tv-peek-stack" style={{ "--cat": CATEGORIES[frame.category].color } as CSSProperties}>
         <div className="tv-peek-back" />
         <div className="tv-peek-card">
           <div className="tv-peek-pic">
@@ -468,7 +468,7 @@ export function TextView({ text, passages, words, onToggle, onPassages }: Props)
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-control bg-tack/60 px-4 py-3 text-sm text-ink">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-control bg-wash/60 px-4 py-3 text-sm text-ink">
         <p className="basis-full font-bold sm:basis-auto">Cliquez sur un mot pour l&apos;ajouter à la planche ou l&apos;en retirer.</p>
         <span className="flex items-center gap-2 text-ink-soft">
           <span aria-hidden className="flex gap-1">

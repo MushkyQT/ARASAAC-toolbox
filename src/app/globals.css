@@ -3,92 +3,109 @@
 /* Jetons du design : voir MASTER.md. Les couleurs des catégories (cartes) restent dans src/lib/categories.ts. */
 @theme {
   --color-kraft: #c6a47c;
+  --color-kraft-grid: #b8956b;
   --color-kraft-deep: #a9855b;
-  --color-sheet: #fffdf8;
+  --color-kraft-ink: #4a3a26;
+  --color-sheet: #fffefb;
   --color-paper: #ffffff;
-  --color-ink: #1d2230;
-  --color-ink-soft: #545a69;
-  --color-ink-blue: #2b44b0;
-  --color-ink-blue-press: #22378f;
-  --color-ink-blue-wash: #e8ebf7;
-  --color-tack: #ece7dc;
-  --color-rule: #e6dfd2;
-  --color-line: #877c6a;
+  --color-ink: #24211c;
+  --color-ink-press: #3a352d;
+  --color-ink-soft: #5e574c;
+  --color-wash: #efe9dd;
+  --color-rule: #e8e1d4;
+  --color-line: #8a7f6d;
   --color-attention: #7a4a00;
-  --color-attention-wash: #f5ecd9;
+  --color-attention-wash: #f6ecd6;
   --color-danger: #a3231a;
-  --color-danger-wash: #f8e4e0;
+  --color-danger-wash: #f9e4df;
 
-  --font-sans: var(--font-atkinson), Verdana, "Segoe UI", sans-serif;
-  --font-display: var(--font-andika), var(--font-atkinson), Verdana, sans-serif;
+  --font-sans: var(--font-atkinson-next), Verdana, "Segoe UI", sans-serif;
+  --font-display: var(--font-atkinson-next), Verdana, "Segoe UI", sans-serif;
+  --font-mono: var(--font-atkinson-mono), ui-monospace, Menlo, monospace;
 
-  --text-title: 1.875rem;
-  --text-title--line-height: 1.15;
+  --text-title: 2.125rem;
+  --text-title--line-height: 1.08;
+  --text-title--letter-spacing: -0.01em;
   --text-section: 1.375rem;
   --text-section--line-height: 1.2;
   --text-keyword: 1.125rem;
   --text-keyword--line-height: 1.2;
   --text-label: 0.75rem;
   --text-label--line-height: 1.3;
+  --text-measure: 0.8125rem;
+  --text-measure--line-height: 1.3;
 
-  --radius-sheet: 3px;
-  --radius-control: 8px;
+  --radius-sheet: 14px;
+  --radius-card: 10px;
+  --radius-control: 10px;
 
-  --shadow-sheet: 0 1px 0 rgb(60 40 15 / 0.18), 0 6px 14px -8px rgb(60 40 15 / 0.45);
-  --shadow-lift: 0 2px 0 rgb(60 40 15 / 0.14), 0 12px 22px -10px rgb(60 40 15 / 0.5);
-  --shadow-focus: 0 0 0 3px rgb(43 68 176 / 0.25);
-  --shadow-dialog: 0 2px 0 rgb(60 40 15 / 0.2), 0 24px 48px -16px rgb(60 40 15 / 0.55);
+  /* La pochette de plastification : un bord transparent tracé en ombre portée, qui ne change pas la mise en page. */
+  --shadow-sheet:
+    0 0 0 6px var(--laminate), 0 0 0 7px var(--laminate-edge), 0 16px 26px -16px rgb(60 45 20 / 0.5);
+  --shadow-card:
+    0 0 0 3px var(--laminate), 0 0 0 4px var(--laminate-edge), 0 6px 10px -6px rgb(60 45 20 / 0.45);
+  --shadow-lift:
+    0 0 0 3px var(--laminate), 0 0 0 4px var(--laminate-edge), 0 12px 18px -8px rgb(60 45 20 / 0.5);
+  --shadow-dialog:
+    0 0 0 6px var(--laminate), 0 0 0 7px var(--laminate-edge), 0 28px 56px -18px rgb(40 30 15 / 0.6);
+  --shadow-focus: 0 0 0 3px rgb(36 33 28 / 0.22);
+  /* Sans plastification : l'onglet choisi, et les pages A4 de l'aperçu (le papier n'est plastifié qu'après l'impression). */
+  --shadow-contact: 0 1px 0 rgb(60 45 20 / 0.12), 0 2px 4px -1px rgb(60 45 20 / 0.25);
+  --shadow-page: 0 1px 0 rgb(60 45 20 / 0.18), 0 12px 22px -12px rgb(60 45 20 / 0.55);
 
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
-
-  --animate-land: land 180ms var(--ease-out) both;
+  --ease-land: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
   --duration-swap: 120ms;
   --duration-hover: 160ms;
-  --duration-enter: 180ms;
-  --stagger: 16ms;
-  --chevron-ink: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23545A69' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 8l5 5 5-5'/></svg>");
-  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.9 0.08' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.24  0 0 0 0 0.12  0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  --duration-land: 280ms;
+  --duration-glint: 520ms;
+  --family-gap: 90ms;
+  --stagger: 22ms;
+  --laminate: rgb(255 255 255 / 0.55);
+  --laminate-edge: rgb(36 33 28 / 0.12);
+  --sheen: linear-gradient(115deg, transparent 28%, rgb(255 255 255 / 0.38) 40%, transparent 52%);
+  --chevron-ink: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%235E574C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 8l5 5 5-5'/></svg>");
 }
 
+/* Le tapis de découpe : le kraft quadrillé au centimètre (traits forts tous les 5 cm). */
 body {
-  background: var(--color-kraft) var(--grain);
+  background-color: var(--color-kraft);
+  background-image:
+    linear-gradient(var(--color-kraft-deep) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-kraft-deep) 1px, transparent 1px),
+    linear-gradient(var(--color-kraft-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-kraft-grid) 1px, transparent 1px);
+  background-size:
+    5cm 5cm,
+    5cm 5cm,
+    1cm 1cm,
+    1cm 1cm;
   color: var(--color-ink);
   font-family: var(--font-sans);
   line-height: 1.55;
 }
 
 @layer components {
-  /* Une feuille punaisée au mur de kraft. */
+  /* Une feuille plastifiée posée sur le tapis : papier, bord transparent de la pochette, un reflet fixe. */
   .sheet {
     position: relative;
+    isolation: isolate;
     background: var(--color-sheet);
     border-radius: var(--radius-sheet);
     box-shadow: var(--shadow-sheet);
   }
-  .sheet::before,
   .sheet::after {
     content: "";
     position: absolute;
-    top: -7px;
-    width: 22px;
-    height: 14px;
-    border-radius: 50% 45% 55% 50%;
-    background: var(--color-tack);
-    box-shadow:
-      inset 0 -2px 2px rgb(0 0 0 / 0.08),
-      0 1px 1px rgb(60 40 15 / 0.25);
+    inset: -6px;
+    border-radius: calc(var(--radius-sheet) + 6px);
+    z-index: -1;
+    background: var(--sheen);
+    mix-blend-mode: soft-light;
     pointer-events: none;
-  }
-  .sheet::before {
-    left: 18px;
-    transform: rotate(-8deg);
-  }
-  .sheet::after {
-    right: 18px;
-    transform: rotate(6deg);
   }
 
   .btn-primary,
@@ -97,7 +114,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-height: 2.5rem;
+    min-height: 2.625rem;
     padding-inline: 1rem;
     border: 2px solid;
     border-radius: var(--radius-control);
@@ -112,14 +129,15 @@ body {
       transform var(--duration-swap) var(--ease-out);
   }
   .btn-primary {
-    border-color: var(--color-ink-blue);
-    background: var(--color-ink-blue);
+    border-color: var(--color-ink);
+    background: var(--color-ink);
     color: var(--color-sheet);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
   }
   .btn-primary:hover,
   .btn-primary:active {
-    border-color: var(--color-ink-blue-press);
-    background: var(--color-ink-blue-press);
+    border-color: var(--color-ink-press);
+    background: var(--color-ink-press);
   }
   .btn-secondary {
     border-color: var(--color-ink);
@@ -128,15 +146,16 @@ body {
   }
   .btn-secondary:hover,
   .btn-secondary:active {
-    background: var(--color-tack);
+    background: var(--color-wash);
   }
   .btn-primary:active,
   .btn-secondary:active {
     transform: translateY(1px);
   }
   .btn-primary:disabled {
-    border-color: var(--color-rule);
-    background: var(--color-rule);
+    border-color: var(--color-wash);
+    background: var(--color-wash);
+    box-shadow: none;
     color: var(--color-ink-soft);
     cursor: not-allowed;
     transform: none;
@@ -187,17 +206,17 @@ body {
       box-shadow var(--duration-swap) var(--ease-out);
   }
   .field:hover {
-    border-color: var(--color-ink);
+    border-color: var(--color-ink-soft);
   }
   .field:focus,
   .field:focus-visible {
     outline: none;
-    border-color: var(--color-ink-blue);
+    border-color: var(--color-ink);
     box-shadow: var(--shadow-focus);
   }
   .field:disabled {
     border-color: var(--color-rule);
-    background-color: var(--color-tack);
+    background-color: var(--color-wash);
     color: var(--color-ink-soft);
     cursor: not-allowed;
   }
@@ -211,26 +230,68 @@ body {
     color: var(--color-ink-soft);
   }
 
-  /* Mini-carte d'un mot : inclinée comme posée à la main, se redresse au survol. */
+  /* Mesures et comptes (cartes, pages, tailles) : le chiffre Mono, aligné. */
+  .measure {
+    font-family: var(--font-mono);
+    font-size: var(--text-measure);
+    line-height: var(--text-measure--line-height);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Mini-carte d'un mot : une carte plastifiée, coins arrondis à la poinçonneuse ; se soulève au survol. */
   .mini-card {
-    transform: rotate(var(--tilt, 0deg));
-    box-shadow: var(--shadow-sheet);
+    box-shadow: var(--shadow-card);
     transition:
       transform var(--duration-hover) var(--ease-out),
       box-shadow var(--duration-hover) var(--ease-out);
   }
   .mini-card:hover {
-    transform: translateY(-2px) rotate(0deg);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lift);
   }
-  .tile-enter .mini-card {
-    animation: land var(--duration-enter) var(--ease-out) both;
-    animation-delay: calc(min(var(--i, 0), 11) * var(--stagger));
+  .mini-card:active {
+    transform: translateY(1px);
+    transition-duration: var(--duration-swap);
+  }
+  /* Le reflet de la plastification : fixe (::before), glisse un peu au survol ; l'éclat (::after) ne passe qu'à l'arrivée. */
+  .laminate-sheen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: calc(var(--radius-card) - 4px);
+    pointer-events: none;
+  }
+  .laminate-sheen::before,
+  .laminate-sheen::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+  }
+  .laminate-sheen::before {
+    background: linear-gradient(120deg, transparent 30%, rgb(255 255 255 / 0.55) 46%, transparent 60%);
+    opacity: 0.55;
+    transition: transform var(--duration-hover) var(--ease-out);
+  }
+  .laminate-sheen::after {
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.9) 50%, transparent 65%);
+    transform: translateX(-130%);
+  }
+  .mini-card:hover .laminate-sheen::before {
+    transform: translateX(8%);
+  }
+
+  /* L'arrivée des cartes à la fin d'une analyse est jouée par script (WordBoard, landOnBoard). */
+  /* Une carte qui apparaît sur la planche (mot ajouté, liste remontée) entre simplement, vite. */
+  .tile-added {
+    animation: fade var(--duration-swap) var(--ease-out) both;
   }
 
   /* Vignette d'un pictogramme dans le choix des images. */
   .thumb {
-    box-shadow: var(--shadow-sheet);
+    box-shadow: var(--shadow-card);
     transition:
       transform var(--duration-hover) var(--ease-out),
       box-shadow var(--duration-hover) var(--ease-out);
@@ -239,16 +300,42 @@ body {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lift);
   }
+  .thumb:active {
+    transform: translateY(1px);
+  }
 
   .swap-in {
     animation: fade var(--duration-swap) var(--ease-out) both;
   }
 
-  /* Bandeau des étapes : une feuille sans punaises, collée en haut du mur. */
-  .strip {
-    background: var(--color-sheet);
-    border-radius: var(--radius-sheet);
-    box-shadow: var(--shadow-sheet);
+  /* Une page A4 de l'aperçu : papier d'impression, sans pochette. */
+  .print-page {
+    position: relative;
+    background: var(--color-paper);
+    box-shadow: var(--shadow-page);
+  }
+
+  /* Le bord de la règle, en haut du tapis : millimètres, centimètres numérotés. Décoratif. */
+  .ruler {
+    position: relative;
+    height: 1.5rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-kraft-deep);
+    background-color: var(--color-kraft);
+    background-image:
+      linear-gradient(90deg, var(--color-kraft-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-kraft-deep) 1px, transparent 1px);
+    background-size:
+      1cm 11px,
+      1mm 6px;
+    background-repeat: repeat-x;
+  }
+  .ruler > span {
+    position: absolute;
+    top: 11px;
+    color: var(--color-kraft-ink);
+    font: 600 10px/1 var(--font-mono);
+    transform: translateX(3px);
   }
 
   /* Texte modifiable sur place (mot d'une carte, titre) : une ligne pointillée à remplir. */
@@ -271,12 +358,12 @@ body {
   }
   .inline-field:hover {
     border-bottom-color: var(--color-ink);
-    background: rgb(236 231 220 / 0.5);
+    background: rgb(239 233 221 / 0.6);
   }
   .inline-field:focus,
   .inline-field:focus-visible {
     outline: none;
-    border-color: var(--color-ink-blue);
+    border-color: var(--color-ink);
     border-radius: var(--radius-control);
     background: var(--color-sheet);
     box-shadow: var(--shadow-focus);
@@ -304,8 +391,7 @@ body {
   }
   .bank-chip:hover {
     border-color: var(--color-ink);
-    background: var(--color-tack);
-    box-shadow: var(--shadow-sheet);
+    background: var(--color-wash);
   }
   .bank-chip:active {
     transform: translateY(1px);
@@ -318,9 +404,10 @@ body {
     align-items: center;
     justify-content: center;
     border: 2px solid;
-    border-radius: var(--radius-sheet);
-    background: var(--color-sheet);
+    border-radius: 6px;
+    background: var(--color-paper);
     padding: 1px;
+    box-shadow: 0 0 0 2px var(--laminate), 0 0 0 3px var(--laminate-edge);
   }
 
   /* Vue « Dans le texte ». */
@@ -355,29 +442,29 @@ body {
       text-decoration-color var(--duration-swap) var(--ease-out);
   }
   .tv-mark:hover {
-    background: var(--color-tack);
+    background: var(--color-wash);
     text-decoration-color: var(--color-ink);
   }
   .tv-mark[aria-pressed="true"],
   .tv-mark[data-on] {
-    background: var(--color-ink-blue-wash);
+    background: var(--color-wash);
     text-decoration-style: solid;
     text-decoration-color: var(--cat);
     text-decoration-thickness: 3px;
   }
   .tv-mark[aria-pressed="true"]:hover {
-    background: var(--color-tack);
+    background: var(--color-rule);
   }
   .tv-mark:focus-visible {
-    outline: 2px solid var(--color-ink-blue);
+    outline: 2px solid var(--color-ink);
     outline-offset: 1px;
   }
   .tv-ignored {
     border-radius: 2px;
-    background: rgb(236 231 220 / 0.7);
+    background: rgb(239 233 221 / 0.8);
     color: var(--color-ink-soft);
     text-decoration: line-through;
-    text-decoration-color: rgb(84 90 105 / 0.45);
+    text-decoration-color: rgb(94 87 76 / 0.45);
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
@@ -398,13 +485,13 @@ body {
       color var(--duration-swap) var(--ease-out);
   }
   .tv-include:hover {
-    background: var(--color-tack);
+    background: var(--color-wash);
     color: var(--color-ink);
   }
   .tv-ignored-block {
     border: 1px dashed var(--color-line);
-    border-radius: var(--radius-sheet);
-    background: rgb(236 231 220 / 0.45);
+    border-radius: var(--radius-card);
+    background: rgb(239 233 221 / 0.5);
     padding: 0.625rem 0.875rem;
   }
   .tv-ignored-text {
@@ -438,7 +525,7 @@ body {
     opacity: 1;
   }
   .tv-para-action:hover {
-    background: var(--color-tack);
+    background: var(--color-wash);
     color: var(--color-ink);
   }
   @media (hover: none) {
@@ -472,7 +559,7 @@ body {
     left: 0;
     width: 64px;
     opacity: 0;
-    transform: translateY(var(--peek-from)) rotate(var(--tilt, 0deg));
+    transform: translateY(var(--peek-from));
     transition:
       opacity var(--duration-swap) var(--ease-out),
       transform var(--duration-swap) var(--ease-out);
@@ -484,14 +571,14 @@ body {
   }
   .tv-peek[data-open] .tv-peek-stack {
     opacity: 1;
-    transform: translateY(0) rotate(var(--tilt, 0deg));
+    transform: translateY(0);
     transition-duration: var(--duration-hover);
   }
   .tv-peek-card,
   .tv-peek-back {
     border: 3px solid var(--cat);
-    border-radius: var(--radius-sheet);
-    background: var(--color-sheet);
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
     transition:
       border-color var(--duration-swap) var(--ease-out),
       transform var(--duration-hover) var(--ease-out);
@@ -518,11 +605,11 @@ body {
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: rgb(135 124 106 / 0.4);
+    background: rgb(138 127 109 / 0.4);
     transition: background-color var(--duration-swap) var(--ease-out);
   }
   .tv-peek-pips > [data-on] {
-    background: var(--color-ink-blue);
+    background: var(--color-ink);
   }
   /* Plusieurs pictogrammes possibles : une deuxième carte, plus pâle, dépasse en éventail derrière la première.
      Rangée exactement sous la carte sinon, elle sort à l'ouverture et rentre quand le mot n'en a qu'un. */
@@ -530,10 +617,10 @@ body {
     position: absolute;
     inset: 0;
     border-color: color-mix(in srgb, var(--cat) 50%, var(--color-sheet));
-    box-shadow: var(--shadow-sheet);
+    box-shadow: var(--shadow-card);
   }
   .tv-peek[data-open][data-stack] .tv-peek-back {
-    transform: translate(5px, -4px) rotate(4deg);
+    transform: translate(5px, -4px);
   }
 
   /* Carte de l'aperçu : cliquable pour la modifier. */
@@ -542,22 +629,42 @@ body {
     transition: box-shadow var(--duration-hover) var(--ease-out);
   }
   .preview-card:hover {
-    box-shadow: 0 0 0 2px var(--color-ink-blue);
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 
   .toast {
-    animation: toast-in var(--duration-enter) var(--ease-out) both;
+    animation: toast-in var(--duration-hover) var(--ease-out) both;
   }
 }
 
 @keyframes land {
   from {
     opacity: 0;
-    transform: translateY(-4px) rotate(var(--tilt, 0deg));
+    transform: translateY(-10px) scale(1.03);
   }
   to {
     opacity: 1;
-    transform: translateY(0) rotate(var(--tilt, 0deg));
+    transform: none;
+  }
+}
+
+@keyframes glint {
+  from {
+    transform: translateX(-130%);
+  }
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -582,18 +689,18 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-ink-blue);
+  outline: 3px solid var(--color-ink);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: rgb(43 68 176 / 0.22);
+  background: rgb(169 133 91 / 0.35);
   color: var(--color-ink);
 }
 
 input,
 textarea {
-  caret-color: var(--color-ink-blue);
+  caret-color: var(--color-ink);
 }
 
 html {
@@ -619,7 +726,7 @@ select {
 
 input[type="checkbox"],
 input[type="range"] {
-  accent-color: var(--color-ink-blue);
+  accent-color: var(--color-ink);
 }
 
 dialog {
@@ -627,26 +734,28 @@ dialog {
   color: var(--color-ink);
 }
 dialog[open] {
-  animation: fade var(--duration-enter) var(--ease-out) both;
+  animation: rise var(--duration-hover) var(--ease-out) both;
 }
 dialog::backdrop {
-  background: rgb(29 34 48 / 0.45);
+  background: rgb(36 33 28 / 0.45);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mini-card,
   .mini-card:hover,
+  .mini-card:active,
   .thumb:hover,
+  .thumb:active,
   .btn-primary:active,
-  .btn-secondary:active {
-    transform: none;
-  }
-  .tile-enter .mini-card {
-    animation: fade var(--duration-enter) linear both;
-    animation-delay: 0ms;
-  }
+  .btn-secondary:active,
   .bank-chip:active {
     transform: none;
+  }
+  .mini-card:hover .laminate-sheen::before {
+    transform: none;
+  }
+  .tile-added {
+    animation: fade var(--duration-swap) linear both;
   }
   .tv-peek[data-glide] {
     transition: none;
@@ -658,10 +767,8 @@ dialog::backdrop {
   .tv-peek-back {
     transition: border-color var(--duration-swap) var(--ease-out);
   }
-  .tv-peek[data-open][data-stack] .tv-peek-back {
-    transform: translate(5px, -4px);
-  }
+  dialog[open],
   .toast {
-    animation: fade var(--duration-enter) linear both;
+    animation: fade var(--duration-hover) linear both;
   }
 }

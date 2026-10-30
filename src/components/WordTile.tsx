@@ -8,13 +8,6 @@ import type { WordItem } from "@/lib/types";
 import { IconClose, IconImage, IconPlus } from "./icons";
 import { SenseStrip } from "./SenseStrip";
 
-/** Inclinaison de la mini-carte (±0,6°), stable pour un même mot : posée à la main, pas au hasard à chaque rendu. */
-export function tiltOf(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return ((Math.abs(h) % 13) - 6) / 10;
-}
-
 /** Chevron d'une liste déroulante sur fond coloré, tracé dans la couleur du texte. */
 const chevron = (color: string) =>
   `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='${color.replace("#", "%23")}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M5 8l5 5 5-5'/></svg>")`;
@@ -28,7 +21,6 @@ export function wordImage(word: WordItem, resolution: 300 | 500 = 300) {
 
 interface Props {
   word: WordItem;
-  index: number;
   onUpdate: (patch: Partial<WordItem>) => void;
   onOpen: () => void;
   onRemove: () => void;
@@ -36,17 +28,17 @@ interface Props {
 }
 
 /** Une carte de la planche : son image, le mot imprimé, sa couleur, et les autres images possibles. */
-export function WordTile({ word, index, onUpdate, onOpen, onRemove, onAddSense }: Props) {
+export function WordTile({ word, onUpdate, onOpen, onRemove, onAddSense }: Props) {
   const color = CATEGORIES[word.category].color;
   const image = wordImage(word);
   const review = needsReview(word);
 
   return (
-    <li className="relative flex gap-3 rounded-sheet border border-rule bg-sheet p-3 pr-11">
+    <li data-category={word.category} className="tile-added relative flex gap-4 rounded-card border border-rule bg-sheet p-3.5 pr-11">
       <button
         onClick={onOpen}
-        className="mini-card relative h-20 w-20 shrink-0 cursor-pointer rounded-sheet border-4 bg-sheet p-1.5"
-        style={{ borderColor: color, "--tilt": `${tiltOf(word.id)}deg`, "--i": index } as CSSProperties}
+        className="mini-card relative h-20 w-20 shrink-0 cursor-pointer rounded-card border-4 bg-paper p-1.5"
+        style={{ borderColor: color }}
         aria-label={`Changer l'image de ${word.label}`}
         title="Changer l'image"
       >
@@ -59,6 +51,7 @@ export function WordTile({ word, index, onUpdate, onOpen, onRemove, onAddSense }
             Sans image
           </span>
         )}
+        <span className="laminate-sheen" aria-hidden />
         {review && (
           <span className="absolute -right-2 -top-2 h-3.5 w-3.5 rounded-full border-2 border-sheet bg-attention" aria-hidden />
         )}
@@ -119,7 +112,7 @@ export function WordTile({ word, index, onUpdate, onOpen, onRemove, onAddSense }
 
       <button
         onClick={onRemove}
-        className="absolute right-1.5 top-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+        className="absolute right-1.5 top-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-wash hover:text-ink"
         aria-label={word.copyOf ? `Supprimer la carte ${word.label} (autre sens)` : `Retirer ${word.label} de la planche`}
         title={word.copyOf ? "Supprimer cette carte" : "Retirer de la planche"}
       >

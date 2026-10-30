@@ -37,7 +37,7 @@ export function SheetPreview({ cards, settings, measure, fontFamily, onOpen }: P
     <div ref={ref} className="flex w-full flex-col items-center gap-3">
       {Array.from({ length: pages }, (_, p) => (
         <figure key={p} className="flex flex-col items-center gap-2 pt-1">
-          <div className="sheet relative bg-paper" style={{ width: A4.width * scale, height: A4.height * scale }}>
+          <div className="print-page" style={{ width: A4.width * scale, height: A4.height * scale }}>
             {cards.slice(p * grid.perPage, (p + 1) * grid.perPage).map((card, i) => {
               const slot = grid.slots[i];
               return (
@@ -59,7 +59,7 @@ export function SheetPreview({ cards, settings, measure, fontFamily, onOpen }: P
             )}
           </div>
           <figcaption className="rounded-control bg-sheet/85 px-2.5 py-0.5 text-center text-sm text-ink">
-            <b className="tabular-nums">
+            <b className="measure">
               Page {p + 1} sur {pages}
             </b>
             {p === 0 && cards.length > 0 && <> · cliquez sur une carte pour la modifier</>}

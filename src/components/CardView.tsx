@@ -77,7 +77,7 @@ export function CardView({ card, settings, measure, fontFamily, scale, className
         />
       ) : (
         <div
-          className="absolute flex items-center justify-center rounded-sheet border border-dashed border-line text-ink-soft"
+          className="absolute flex items-center justify-center rounded-xs border border-dashed border-line text-ink-soft"
           style={{
             left: px(boxes.image.x),
             top: px(boxes.image.y),

@@ -61,8 +61,8 @@ function Thumb({
       onFocus={() => keywords === null && pictoKeywords(id).then(setKeywords)}
       aria-pressed={active}
       title={keywords?.join(", ") ?? `Pictogramme ${id}`}
-      className={`thumb group relative flex cursor-pointer flex-col items-center justify-start rounded-sheet border-4 bg-sheet p-2 ${
-        active ? "ring-4 ring-ink-blue ring-offset-2 ring-offset-sheet" : ""
+      className={`thumb group relative flex cursor-pointer flex-col items-center justify-start rounded-card border-4 bg-sheet p-2 ${
+        active ? "ring-4 ring-ink ring-offset-2 ring-offset-sheet" : ""
       }`}
       style={{ borderColor: CATEGORIES[category].color }}
     >
@@ -77,12 +77,12 @@ function Thumb({
       </span>
       {hint && <span className="mt-1 line-clamp-2 text-center text-xs leading-tight text-ink-soft">{hint}</span>}
       {shortcut !== undefined && (
-        <kbd className="absolute left-1 top-1 rounded-sheet bg-tack px-1 font-sans text-xs font-bold text-ink-soft">
+        <kbd className="absolute left-1 top-1 rounded bg-wash px-1 font-sans text-xs font-bold text-ink-soft">
           {shortcut}
         </kbd>
       )}
       {keywords && !hint && (
-        <span className="pointer-events-none absolute inset-x-1 bottom-1 truncate rounded-sheet bg-sheet/95 px-1 text-xs text-ink-soft opacity-0 transition-opacity duration-(--duration-swap) ease-out group-hover:opacity-100">
+        <span className="pointer-events-none absolute inset-x-1 bottom-1 truncate rounded bg-sheet/95 px-1 text-xs text-ink-soft opacity-0 transition-opacity duration-(--duration-swap) ease-out group-hover:opacity-100">
           {keywords.slice(0, 3).join(", ")}
         </span>
       )}
@@ -201,7 +201,7 @@ function PickerBody({ word, onChange, onRemove, review, close }: Omit<Props, "on
     <div className="flex max-h-[92vh] flex-col">
       {review && (
         <div className="flex flex-wrap items-center gap-3 border-b border-attention/30 bg-attention-wash px-6 py-2.5 text-sm text-attention">
-          <span className="font-bold tabular-nums">
+          <span className="font-bold">
             Vérification {review.position + 1} sur {review.total}
           </span>
           <span
@@ -240,7 +240,7 @@ function PickerBody({ word, onChange, onRemove, review, close }: Omit<Props, "on
               «{" "}
               {splitOnForms(word.example, [word.lemma, ...word.forms]).map(([part, isWord], i) =>
                 isWord ? (
-                  <mark key={i} className="rounded-sheet bg-attention-wash px-0.5 font-bold text-ink">
+                  <mark key={i} className="rounded-xs bg-attention-wash px-0.5 font-bold text-ink">
                     {part}
                   </mark>
                 ) : (
@@ -253,7 +253,7 @@ function PickerBody({ word, onChange, onRemove, review, close }: Omit<Props, "on
         </div>
         <button
           onClick={close}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-tack hover:text-ink"
+          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors duration-(--duration-swap) ease-out hover:bg-wash hover:text-ink"
           aria-label="Fermer"
         >
           <IconClose size={22} />

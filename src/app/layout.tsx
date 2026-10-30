@@ -2,22 +2,27 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-// Les mêmes fichiers que ceux proposés pour les cartes (public/fonts) : aucune requête vers un tiers.
-const andika = localFont({
-  variable: "--font-andika",
+// Polices de l'interface, servies par l'application (public/fonts/ui) : aucune requête vers un tiers.
+// Les polices des cartes (Open Sans, Andika, Atkinson Hyperlegible) restent dans public/fonts pour les exports.
+const atkinsonNext = localFont({
+  variable: "--font-atkinson-next",
   display: "swap",
+  fallback: ["Verdana", "Segoe UI", "sans-serif"],
   src: [
-    { path: "../../public/fonts/Andika-Regular.ttf", weight: "400" },
-    { path: "../../public/fonts/Andika-Bold.ttf", weight: "700" },
+    { path: "../../public/fonts/ui/AtkinsonHyperlegibleNext-400.woff2", weight: "400" },
+    { path: "../../public/fonts/ui/AtkinsonHyperlegibleNext-700.woff2", weight: "700" },
+    { path: "../../public/fonts/ui/AtkinsonHyperlegibleNext-800.woff2", weight: "800" },
   ],
 });
 
-const atkinson = localFont({
-  variable: "--font-atkinson",
+const atkinsonMono = localFont({
+  variable: "--font-atkinson-mono",
   display: "swap",
+  fallback: ["ui-monospace", "Menlo", "monospace"],
+  adjustFontFallback: false,
   src: [
-    { path: "../../public/fonts/AtkinsonHyperlegible-Regular.ttf", weight: "400" },
-    { path: "../../public/fonts/AtkinsonHyperlegible-Bold.ttf", weight: "700" },
+    { path: "../../public/fonts/ui/AtkinsonHyperlegibleMono-500.woff2", weight: "500" },
+    { path: "../../public/fonts/ui/AtkinsonHyperlegibleMono-600.woff2", weight: "600" },
   ],
 });
 
@@ -33,7 +38,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${andika.variable} ${atkinson.variable} h-full antialiased`}>
+    <html lang="fr" className={`${atkinsonNext.variable} ${atkinsonMono.variable} h-full antialiased`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

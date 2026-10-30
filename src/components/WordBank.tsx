@@ -60,7 +60,7 @@ export function WordBank({ words, filtered, onPick, onAdd }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h3 id="bank-title" className="flex items-baseline gap-2 font-display text-keyword font-bold">
           Autres mots du texte
-          <span className="label-caps tabular-nums">{words.length}</span>
+          <span className="measure text-ink-soft">{words.length}</span>
         </h3>
         {words.length > 1 && (
           <label className="flex items-center gap-2 text-sm">
@@ -102,8 +102,8 @@ export function WordBank({ words, filtered, onPick, onAdd }: Props) {
                       )}
                     </span>
                     <span className="min-w-0 truncate">{w.label}</span>
-                    {w.count > 1 && <span className="text-xs font-normal tabular-nums text-ink-soft">×{w.count}</span>}
-                    <IconPlus size={16} className="shrink-0 text-ink-soft transition-colors duration-(--duration-swap) ease-out group-hover:text-ink-blue" />
+                    {w.count > 1 && <span className="measure font-medium text-ink-soft">×{w.count}</span>}
+                    <IconPlus size={16} className="shrink-0 text-ink-soft transition-colors duration-(--duration-swap) ease-out group-hover:text-ink" />
                   </button>
                 </li>
               );

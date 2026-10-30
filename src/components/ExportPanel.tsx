@@ -90,7 +90,7 @@ function ExportButton({
 function Disclosure({ title, summary, children }: { title: string; summary: string; children: ReactNode }) {
   return (
     <details className="group rounded-control border border-rule">
-      <summary className="flex cursor-pointer list-none items-center gap-3 rounded-control px-3 py-2.5 transition-colors duration-(--duration-swap) ease-out hover:bg-tack [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-3 rounded-control px-3 py-2.5 transition-colors duration-(--duration-swap) ease-out hover:bg-wash [&::-webkit-details-marker]:hidden">
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-bold text-ink">{title}</span>
           <span className="block truncate text-xs text-ink-soft">{summary}</span>
@@ -178,7 +178,7 @@ export function ExportPanel({ cards, pages, perPage, settings, onSettings, title
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 className="font-display text-section font-bold">L&apos;impression</h2>
-        <p className="text-sm text-ink tabular-nums">
+        <p className="measure text-ink">
           {empty ? (
             "Aucune carte sur la planche pour l'instant."
           ) : (
@@ -201,7 +201,7 @@ export function ExportPanel({ cards, pages, perPage, settings, onSettings, title
       />
       {busy && (
         <p role="status" className="flex items-center gap-2 text-sm text-ink">
-          <IconPrinter size={18} className="text-ink-blue" />
+          <IconPrinter size={18} className="text-ink" />
           {busy}
         </p>
       )}
@@ -244,8 +244,8 @@ export function ExportPanel({ cards, pages, perPage, settings, onSettings, title
                   key={s.mm}
                   onClick={() => onSettings({ sizeMm: s.mm })}
                   aria-pressed={settings.sizeMm === s.mm}
-                  className={`min-w-14 cursor-pointer rounded-control border-2 border-ink px-3 py-1 text-sm font-bold tabular-nums transition-colors duration-(--duration-swap) ease-out ${
-                    settings.sizeMm === s.mm ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-tack"
+                  className={`min-w-14 cursor-pointer rounded-control border-2 border-ink px-3 py-1 font-mono text-sm font-semibold tabular-nums transition-colors duration-(--duration-swap) ease-out ${
+                    settings.sizeMm === s.mm ? "bg-ink text-sheet" : "bg-sheet text-ink hover:bg-wash"
                   }`}
                 >
                   {s.label}
@@ -271,7 +271,7 @@ export function ExportPanel({ cards, pages, perPage, settings, onSettings, title
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-sm font-bold text-ink">
-                Bordure : <span className="tabular-nums">{settings.borderMm.toLocaleString("fr-FR")} mm</span>
+                Bordure : <span className="measure">{settings.borderMm.toLocaleString("fr-FR")} mm</span>
               </span>
               <input
                 type="range"

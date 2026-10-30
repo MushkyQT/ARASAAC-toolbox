@@ -109,6 +109,8 @@ export function Workbench() {
   // Revue des mots à plusieurs images : la liste est figée au lancement pour pouvoir revenir en arrière.
   const [queue, setQueue] = useState<string[] | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
+  // Numéro de la dernière analyse terminée : déclenche l'arrivée des cartes sur la planche.
+  const [landing, setLanding] = useState(0);
   const wordsRef = useRef<HTMLDivElement>(null);
   // Dernier état connu, pour les opérations asynchrones (une nouvelle analyse peut finir après un clic).
   const latest = useRef(project);
@@ -158,6 +160,7 @@ export function Workbench() {
       const p = latest.current;
       const words = await analyzeProject(p.text, p.passages ?? {}, p.words, { selectNew: true });
       dispatch({ type: "words", words });
+      setLanding((n) => n + 1);
       // Texte collé sans titre : sa première ligne, si elle ressemble à un titre, nomme le document.
       if (!p.title.trim()) {
         const first = findPassages(p.text, p.passages ?? {}).find((x) => !x.ignored)?.text.split("\n")[0].trim();
@@ -323,10 +326,10 @@ export function Workbench() {
 
   return (
     <>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         <section id="texte" aria-label="Le texte" className="scroll-mt-6">
           {editingSource || words.length === 0 ? (
-            <div className="sheet p-4 sm:p-6">
+            <div className="sheet p-5 sm:p-7">
               <SourcePanel
                 text={project.text}
                 onText={(t, title) => dispatch({ type: "text", text: t, title })}
@@ -353,7 +356,7 @@ export function Workbench() {
         </section>
 
         {words.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(340px,420px)]">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(340px,420px)]">
             <div ref={wordsRef} id="mots" className="scroll-mt-6">
               <WordBoard
                 words={words}
@@ -377,14 +380,15 @@ export function Workbench() {
                   setOpenId(ids[0]);
                 }}
                 onPassage={setPassages}
+                landing={landing}
               />
             </div>
             <aside
               id="impression"
               aria-label="L'impression"
-              className="flex scroll-mt-6 flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-2.5rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:px-1 lg:pb-4 lg:pt-2"
+              className="flex scroll-mt-6 flex-col gap-8 lg:sticky lg:top-10 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:px-2 lg:pb-6 lg:pt-2"
             >
-              <div className="sheet p-4 sm:p-6">
+              <div className="sheet p-5 sm:p-7">
                 <ExportPanel
                   cards={cards}
                   pages={pages}
